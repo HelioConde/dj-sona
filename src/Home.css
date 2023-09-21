@@ -1,0 +1,100 @@
+body {
+    background: black;
+    position: relative;
+    height: 100vh;
+    font-family: "Bebas Neue";
+}
+
+.video-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+video {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.sound {
+    display: flex;
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    background-color: rgba(0, 123, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(0, 123, 255, 0.2);
+    padding: 15px 15px;
+    cursor: pointer;
+}
+
+.select {
+    display: flex;
+    height: 83vh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.select div {
+    display: flex;
+    width: 33%;
+    justify-content: center;
+    height: 70vh;
+    align-items: flex-end;
+}
+
+.iconDjSone {
+    width: 100px;
+    border-radius: 100px;
+}
+
+.concussive {
+    margin-top: 70px;
+}
+
+.kinetic {
+    margin-bottom: 70px;
+}
+
+.ethereal {
+    margin-bottom: 70px;
+}
+
+
+.iconDjSone1 {
+    border: 2px solid rgba(0, 191, 255, 0.5);
+    animation: pulse1 2s infinite;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.iconDjSone2 {
+    border: 2px solid rgba(255, 0, 0, 0.5);
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.iconDjSone3 {
+    border: 2px solid rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+@keyframes pulse1 {
+    0% {
+        box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(0, 191, 255, 0.7);
+        /* Aumente o desfoque pela metade do tempo da animação */
+    }
+
+    100% {
+        box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+    }
+}

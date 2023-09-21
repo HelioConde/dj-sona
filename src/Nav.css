@@ -1,0 +1,59 @@
+nav {
+    z-index: 1;
+    display: flex;
+    background-color: rgba(0, 123, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(0, 123, 255, 0.2);
+    transition: background-color 0.3s ease;
+    width: 69.5%;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: auto;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    height: 70px;
+    align-items: center;
+    padding: 0 15%;
+    background: linear-gradient(to bottom, rgba(255, 0, 204, 0.5), rgba(51, 51, 255, 0.2));
+    /* Substitua as cores pelas que você deseja usar */
+    /* Ajuste a altura da navbar conforme necessário */
+    color: #fff;
+    /* Cor do texto na navbar */
+    font-size: 18px;
+}
+
+.icon {
+    width: 50px;
+}
+
+
+.navMain {
+    display: flex;
+    align-items: center;
+    width: 55%;
+    justify-content: space-between;
+}
+
+.navMain div {
+    cursor: pointer;
+}
+
+.rede a{
+    cursor: pointer;
+    color: white;
+}
+
+.rede {
+    display: flex;
+    align-items: center;
+    width: 20%;
+    justify-content: space-between;
+}
+
+/* Estilo do botão ao clicar/hover */
+.button-azul-rosa:hover {
+    background-color: #ff69b4;
+    /* Rosa vibrante */
+    border: 2px solid #ff69b4;
+    /* Cor da borda igual à cor de fundo */
+}
