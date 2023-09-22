@@ -7,6 +7,8 @@ import {
   faLinkedin,
   faGithub,
 } from "@fortawesome/free-brands-svg-icons"; // Importe os ícones desejados
+import React from "react";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 function Nav() {
   return (
@@ -16,16 +18,24 @@ function Nav() {
           <div>
             <img src={Icon} className="icon" alt="" />
           </div>
-          <div>Inicio</div>
-          <div>Historia</div>
-          <div>Wallpapers</div>
-          <div>Videos</div>
+          <div>
+            <Link to="/">Inicio</Link>
+          </div>
+          <div>
+            <Link to="/history">Historia</Link>
+          </div>
+          <div>
+            <Link to="/Wallpapers">Wallpapers</Link>
+          </div>
+          <div>
+            <Link to="/Movie">Videos</Link>
+          </div>
         </div>
         <div className="rede">
-          <a href="https://www.linkedin.com/in/helioconde/"  target="_blank">
+          <a href="https://www.linkedin.com/in/helioconde/" target="_blank">
             <FontAwesomeIcon icon={faLinkedin} className="icon" />
           </a>
-          <a href="https://github.com/HelioConde/"  target="_blank">
+          <a href="https://github.com/HelioConde/" target="_blank">
             <FontAwesomeIcon icon={faGithub} className="icon" />
           </a>
           <a href="http://facebook.com/alchemyflames" target="_blank">

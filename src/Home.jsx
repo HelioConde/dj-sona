@@ -6,9 +6,17 @@ import Movie3 from "/movie/DJ-Sona-Kinetic2.mp4";
 import icon1 from "/icon1.jpg";
 import icon2 from "/icon2.jpg";
 import icon3 from "/icon3.jpg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faVolumeUp, // Ícone de som ligado
+  faVolumeMute, // Ícone de som desligado
+} from "@fortawesome/free-solid-svg-icons";
 
 function Home() {
+  const [isSoundOn, setIsSoundOn] = useState(true);
   const [backgroundVideo, setBackgroundVideo] = useState(Movie1);
+  const [volume, setVolume] = useState(0.2); // Defina o volume inicial
+  const videoRef = useRef(null);
 
   function handleMouseEnter(form) {
     if (form === "kinetic") {
@@ -34,16 +42,28 @@ function Home() {
 
   function muted() {
     const video = document.getElementById("myVideo");
-    if (video.muted == true) {
-      video.muted = false;
-    } else {
-      video.muted = true;
-    }
+    video.muted = !isSoundOn; // Inverter o estado do som
+    setIsSoundOn(!isSoundOn); // Inverter o estado no estado do React
   }
+
+  function handleVolumeChange(e) {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    const video = videoRef.current;
+    video.volume = newVolume;
+  }
+
   return (
     <>
       <div className="video-background">
-        <video autoPlay muted loop id="myVideo" className="video-element">
+        <video
+          autoPlay
+          muted
+          loop
+          id="myVideo"
+          className="video-element"
+          ref={videoRef}
+        >
           <source src={backgroundVideo} type="video/mp4" />
           Seu navegador não suporta a reprodução de vídeo.
         </video>
@@ -52,30 +72,42 @@ function Home() {
         <div className="select">
           <div
             className="dj-form kinetic"
-            onMouseEnter={() => handleMouseEnter("kinetic")}
-            onMouseLeave={() => handleMouseLeave("kinetic")}
+            onMouseUp={() => handleMouseEnter("kinetic")}
           >
             <img src={icon3} className="iconDjSone iconDjSone1" alt="" />
           </div>
           <div
             className="dj-form concussive"
-            onMouseEnter={() => handleMouseEnter("concussive")}
-            onMouseLeave={() => handleMouseLeave("concussive")}
+            onMouseUp={() => handleMouseEnter("concussive")}
           >
             <img src={icon1} className="iconDjSone iconDjSone2" alt="" />
           </div>
           <div
             className="dj-form ethereal"
-            onMouseEnter={() => handleMouseEnter("ethereal")}
-            onMouseLeave={() => handleMouseLeave("ethereal")}
+            onMouseUp={() => handleMouseEnter("ethereal")}
           >
             <img src={icon2} className="iconDjSone iconDjSone3" alt="" />
           </div>
         </div>
       </main>
-      <button className="sound" onMouseUp={() => muted()}>
-        ?
+      <div className="volumeStyle">
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={volume}
+          onChange={handleVolumeChange}
+        />
+      </div>
+      <button className="sound" onClick={() => muted()}>
+        {!isSoundOn ? (
+          <FontAwesomeIcon icon={faVolumeUp} className="icon" /> // Ícone de som ligado
+        ) : (
+          <FontAwesomeIcon icon={faVolumeMute} className="icon" /> // Ícone de som desligado
+        )}
       </button>
+      <div className="fluter">Em devenvolvimentro</div>
     </>
   );
 }
