@@ -80,7 +80,7 @@ export default function Home() {
         <div className="stage">
           <p className="stage-caption">AGORA TOCANDO <span className="stage-separator">/</span> <strong>{currentForm.title.toUpperCase()}</strong></p>
           <div className="equalizer" aria-hidden="true">
-            {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--bar-index': index }} />)}
+            {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--bar-index': index, height: `${10 + (index * 7) % 26}px` }} />)}
           </div>
           <h2>{currentForm.subtitle}</h2>
           <p className="stage-description">{currentForm.description}</p>
