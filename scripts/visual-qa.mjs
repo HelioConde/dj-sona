@@ -86,6 +86,25 @@ try {
     results.push({ ...view, overflow: metrics.documentWidth - metrics.viewportWidth, passed: true })
     await page.close()
   }
+
+  // Verificar pausa do palco ao alternar audio, sem burlar o estado do usuario.
+  const motionPage = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    reducedMotion: 'no-preference',
+  })
+  motionPage.on('pageerror', (error) => errors.push('manual-pause: ' + error.message))
+  await motionPage.goto(base, { waitUntil: 'domcontentloaded', timeout: 30000 })
+  const pauseControl = motionPage.getByRole('button', { name: 'Pausar movimento do palco' })
+  await pauseControl.click()
+  assert.equal(await motionPage.getByRole('button', { name: 'Retomar movimento do palco' }).getAttribute('aria-pressed'), 'true')
+  await motionPage.getByRole('button', { name: 'Ativar som' }).click()
+  assert.equal(await motionPage.locator('.scene-background video').evaluate(video => video.paused), true,
+    'O controle de som nao pode reiniciar um video pausado manualmente')
+  await checkNoHorizontalOverflow(motionPage, 'manual-pause')
+  await motionPage.screenshot({ path: 'qa-screenshots/mobile-manual-pause.png', fullPage: true })
+  await motionPage.getByRole('button', { name: 'Retomar movimento do palco' }).click()
+  assert.equal(await motionPage.getByRole('button', { name: 'Pausar movimento do palco' }).getAttribute('aria-pressed'), 'false')
+  await motionPage.close()
 } finally {
   await browser.close()
 }
