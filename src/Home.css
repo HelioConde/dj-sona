@@ -220,3 +220,17 @@
   .form-option img { width: 55px; height: 55px; }
   .audio-panel { grid-template-columns: auto auto minmax(65px, 1fr); width: 100%; }
 }
+
+/* Taste / Web Design Guidelines: controles de movimento e interação por teclado */
+.audio-panel { grid-template-columns: auto auto auto minmax(75px, 100px); }
+.pause-button[aria-pressed="true"] { border-color: var(--form-color); background: #29243b; }
+.form-options button:focus-visible { outline: 3px solid #b8dcff; outline-offset: 3px; }
+@media(max-width:560px){
+  .audio-panel { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .audio-button { min-height:42px; }
+  .audio-panel label { justify-self:end; }
+  .audio-panel input { min-width:0; }
+}
+@media(prefers-reduced-motion:reduce){
+  .equalizer i { animation:none!important; transform:none!important; }
+}

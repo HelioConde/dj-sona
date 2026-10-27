@@ -16,6 +16,7 @@ export default function Home() {
   const [soundOn, setSoundOn] = useState(false)
   const [volume, setVolume] = useState(0.25)
   const [playbackError, setPlaybackError] = useState(false)
+  const [videoPaused, setVideoPaused] = useState(false)
   const [reduceMotion, setReduceMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const videoRef = useRef(null)
   const currentForm = FORMS.find((form) => form.id === formId) || FORMS[1]
@@ -42,12 +43,14 @@ export default function Home() {
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-    if (reduceMotion) {
+    if (reduceMotion || videoPaused) {
       video.pause()
     } else {
       video.play().catch(() => { /* navegadores podem exigir gesto do usuário */ })
     }
-  }, [formId, reduceMotion])
+  }, [formId, reduceMotion, videoPaused])
+
+  const toggleVideo = () => setVideoPaused(value => !value)
 
   const toggleSound = () => {
     const next = !soundOn
@@ -89,7 +92,16 @@ export default function Home() {
         <div className="experience-controls">
           <fieldset className="form-picker">
             <legend>ESCOLHA SUA FORMA</legend>
-            <div className="form-options">
+            <div className="form-options" role="group" aria-label="Formas musicais, use as setas esquerda e direita"
+              onKeyDown={(event) => {
+                if (event.target.tagName !== 'BUTTON' || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return
+                event.preventDefault()
+                const options = Array.from(event.currentTarget.querySelectorAll('button'))
+                const index = options.indexOf(event.target)
+                const next = (index + (event.key === 'ArrowRight' ? 1 : -1) + FORMS.length) % FORMS.length
+                setFormId(FORMS[next].id)
+                options[next].focus()
+              }}>
               {FORMS.map((form) => (
                 <button key={form.id} className={`form-option${formId === form.id ? ' selected' : ''}`}
                   style={{ '--item-color': form.color }} type="button" aria-pressed={formId === form.id}
@@ -101,7 +113,11 @@ export default function Home() {
               ))}
             </div>
           </fieldset>
-          <div className="audio-panel" aria-label="Controles de áudio">
+          <div className="audio-panel" aria-label="Controles de reprodução e áudio">
+            {!reduceMotion && <button type="button" className="audio-button pause-button" onClick={toggleVideo}
+              aria-pressed={videoPaused} aria-label={videoPaused ? 'Retomar movimento do palco' : 'Pausar movimento do palco'}>
+              {videoPaused ? '▶ Retomar' : '❚❚ Pausar'}
+            </button>}
             <button type="button" className="audio-button" onClick={toggleSound} aria-pressed={soundOn}>
               <span aria-hidden="true">{soundOn ? '◖))' : '◖×'}</span> {soundOn ? 'Silenciar' : 'Ativar som'}
             </button>
@@ -114,6 +130,7 @@ export default function Home() {
         <p className="media-note" role={playbackError ? 'status' : undefined}>
           {playbackError ? 'O vídeo não pôde ser carregado. A arte da forma continua disponível.' :
             reduceMotion ? 'Movimento reduzido: vídeos de fundo pausados para seu conforto.' :
+              videoPaused ? 'Animação do palco pausada. Você pode retomá-la quando quiser.' :
               'O som começa desligado por padrão. Ative quando quiser ouvir.'}
         </p>
       </section>

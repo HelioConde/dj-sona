@@ -63,6 +63,13 @@ try {
     }
     await page.getByRole('button', { name: /Kinetic/i }).click()
     assert.equal(await page.getByRole('button', { name: /Kinetic/i }).getAttribute('aria-pressed'), 'true')
+    // Teclado: a seleção muda com as setas sem exigir mouse.
+    const kinetic = page.getByRole('button', { name: /Kinetic/i })
+    await kinetic.focus()
+    await page.keyboard.press('ArrowRight')
+    assert.equal(await page.getByRole('button', { name: /Concussive/i }).getAttribute('aria-pressed'), 'true')
+    await page.keyboard.press('ArrowLeft')
+    assert.equal(await kinetic.getAttribute('aria-pressed'), 'true')
     await page.getByRole('button', { name: /Ativar som/i }).click()
     assert.equal(await page.getByRole('button', { name: /Silenciar/i }).getAttribute('aria-pressed'), 'true')
 
