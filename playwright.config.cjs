@@ -7,7 +7,7 @@ module.exports = defineConfig({
   use: { baseURL: 'http://127.0.0.1:4173', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
-    { name: 'tablet', use: { ...devices['iPad Mini'] } },
+    { name: 'tablet', use: { ...devices['iPad Mini'], browserName: 'chromium' } },
     { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
   ],
   webServer: {
