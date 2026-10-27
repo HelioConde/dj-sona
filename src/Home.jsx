@@ -1,115 +1,84 @@
-import React, { useRef, useEffect, useState } from "react"; // Importe o useEffect aqui
-import "./Home.css";
-import Movie1 from "/movie/DJ-Sona-Concussive2.mp4";
-import Movie2 from "/movie/DJ-Sona-Ethereal2.mp4";
-import Movie3 from "/movie/DJ-Sona-Kinetic2.mp4";
-import icon1 from "/icon1.jpg";
-import icon2 from "/icon2.jpg";
-import icon3 from "/icon3.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faVolumeUp, // Ícone de som ligado
-  faVolumeMute, // Ícone de som desligado
-} from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useRef, useState } from 'react';
+import { forms, asset } from './data';
+import './Home.css';
 
-function Home() {
-  const [isSoundOn, setIsSoundOn] = useState(true);
-  const [backgroundVideo, setBackgroundVideo] = useState(Movie1);
-  const [volume, setVolume] = useState(0.2); // Defina o volume inicial
+const prefersReducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+export default function Home() {
+  const [selected, setSelected] = useState('concussive');
+  const [muted, setMuted] = useState(true);
+  const [volume, setVolume] = useState(0.2);
+  const [reduceMotion, setReduceMotion] = useState(prefersReducedMotion);
+  const [playing, setPlaying] = useState(!prefersReducedMotion());
+  const [mediaError, setMediaError] = useState(false);
   const videoRef = useRef(null);
-
-  function handleMouseEnter(form) {
-    if (form === "kinetic") {
-      setBackgroundVideo(Movie3);
-    } else if (form === "concussive") {
-      setBackgroundVideo(Movie1);
-    } else if (form === "ethereal") {
-      setBackgroundVideo(Movie2);
-    }
-  }
-  function handleMouseLeave() {}
+  const active = forms.find((form) => form.id === selected) || forms[1];
 
   useEffect(() => {
-    const video = document.getElementById("myVideo");
-    const timer = video.currentTime;
-    console.log(timer);
-    video.load();
-    video.currentTime = timer;
-    video.play();
-    document.getElementById("myVideo").volume = 0.02;
-    video.currentTime = timer;
-  }, [backgroundVideo]);
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => {
+      setReduceMotion(query.matches);
+      if (query.matches) setPlaying(false);
+    };
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
 
-  function muted() {
-    const video = document.getElementById("myVideo");
-    video.muted = !isSoundOn; // Inverter o estado do som
-    setIsSoundOn(!isSoundOn); // Inverter o estado no estado do React
+  useEffect(() => {
+    const video = videoRef.current;
+    setMediaError(false);
+    if (!video) return;
+    video.volume = volume;
+    if (playing) video.play().catch(() => setPlaying(false));
+    else video.pause();
+  }, [selected, playing, volume]);
+
+  function changeForm(id) {
+    setSelected(id);
   }
 
-  function handleVolumeChange(e) {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    const video = videoRef.current;
-    video.volume = newVolume;
+  function toggleSound() {
+    setMuted((previous) => !previous);
+    if (!playing) setPlaying(true);
+  }
+
+  function togglePlayback() {
+    setPlaying((previous) => !previous);
   }
 
   return (
-    <>
-      <div className="video-background">
-        <video
-          autoPlay
-          muted
-          loop
-          id="myVideo"
-          className="video-element"
-          ref={videoRef}
-        >
-          <source src={backgroundVideo} type="video/mp4" />
-          Seu navegador não suporta a reprodução de vídeo.
-        </video>
+    <main id="conteudo" className="experience" style={{ '--active-color': active.accent }}>
+      <div className="video-background" aria-hidden="true">
+        <div className="ambient-glow" />
+        <video key={selected} ref={videoRef} src={asset(active.video)} poster={asset(active.image)} autoPlay={playing && !reduceMotion} muted={muted} loop playsInline preload="metadata" onError={() => setMediaError(true)} />
+        <div className="video-shade" />
       </div>
-      <main>
-        <div className="select">
-          <div
-            className="dj-form kinetic"
-            onMouseUp={() => handleMouseEnter("kinetic")}
-          >
-            <img src={icon3} className="iconDjSone iconDjSone1" alt="" />
-          </div>
-          <div
-            className="dj-form concussive"
-            onMouseUp={() => handleMouseEnter("concussive")}
-          >
-            <img src={icon1} className="iconDjSone iconDjSone2" alt="" />
-          </div>
-          <div
-            className="dj-form ethereal"
-            onMouseUp={() => handleMouseEnter("ethereal")}
-          >
-            <img src={icon2} className="iconDjSone iconDjSone3" alt="" />
-          </div>
+      <section className="experience-content" aria-labelledby="experience-title">
+        <p className="eyebrow">UMA EXPERIÊNCIA MUSICAL</p>
+        <h1 id="experience-title">Sinta a energia da <span>DJ Sona</span></h1>
+        <p className="hero-description">Três formas. Três atmosferas. Escolha uma das energias e transforme o palco.</p>
+        <div className="form-selector" role="group" aria-label="Selecionar forma musical">
+          {forms.map((form) => (
+            <button key={form.id} type="button" className={'form-button' + (selected === form.id ? ' is-selected' : '')} style={{ '--form-accent': form.accent }} aria-pressed={selected === form.id} aria-label={'Selecionar ' + form.name} onClick={() => changeForm(form.id)}>
+              <img src={asset(form.image)} alt="" width="92" height="92" />
+              <span className="form-name">{form.name}</span>
+              <span className="form-label">{form.label}</span>
+            </button>
+          ))}
         </div>
-      </main>
-      <div className="volumeStyle">
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={handleVolumeChange}
-        />
-      </div>
-      <button className="sound" onClick={() => muted()}>
-        {!isSoundOn ? (
-          <FontAwesomeIcon icon={faVolumeUp} className="icon" /> // Ícone de som ligado
-        ) : (
-          <FontAwesomeIcon icon={faVolumeMute} className="icon" /> // Ícone de som desligado
-        )}
-      </button>
-      <div className="fluter">Em devenvolvimentro</div>
-    </>
+        <div className="now-playing" aria-live="polite">
+          <span className="live-indicator" aria-hidden="true" />
+          <div><strong>{active.name}</strong><p>{active.description}</p></div>
+        </div>
+        {mediaError && <p className="media-notice" role="status">Não foi possível carregar o vídeo. A seleção de formas continua disponível.</p>}
+        <div className="media-controls" role="group" aria-label="Controles da experiência">
+          <button type="button" onClick={togglePlayback} aria-label={playing ? 'Pausar vídeo' : 'Reproduzir vídeo'}>{playing ? 'Ⅱ Pausar' : '▶ Reproduzir'}</button>
+          <button type="button" onClick={toggleSound} aria-label={muted ? 'Ativar som' : 'Silenciar'}>{muted ? '♪ Ativar som' : '♪ Silenciar'}</button>
+          <label htmlFor="video-volume">Volume</label>
+          <input id="video-volume" aria-label="Volume do vídeo" type="range" min="0" max="1" step="0.05" value={volume} onChange={(event) => setVolume(Number(event.target.value))} />
+        </div>
+        {reduceMotion && <p className="motion-note">Movimento reduzido ativado: o vídeo não inicia automaticamente.</p>}
+      </section>
+    </main>
   );
 }
-
-export default Home;
