@@ -3,6 +3,8 @@ name: Build and publish DJ Sona (GitHub Pages)
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -17,7 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,9 +28,24 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install FFmpeg
-        timeout-minutes: 6
-        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Prepare cached FFmpeg/FFprobe binaries
+        uses: FedericoCarboni/setup-ffmpeg@v3.1
+        timeout-minutes: 7
+        continue-on-error: true
+        with:
+          ffmpeg-version: release
+      - name: Verify FFmpeg/FFprobe or install fallback
+        timeout-minutes: 18
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            echo "FFmpeg e FFprobe já disponíveis; sem apt-get."
+          else
+            echo "Binaries indisponíveis; instalação mínima como fallback."
+            sudo apt-get -o Acquire::Retries=2 update -qq
+            sudo apt-get -o Acquire::Retries=2 install -y --no-install-recommends ffmpeg
+          fi
+          ffmpeg -version
+          ffprobe -version
       - name: Quality checks
         run: npm run lint && npm run test
       - name: Build optimized static site
@@ -43,10 +60,13 @@ jobs:
           test -n "$(find dist/assets -maxdepth 1 -name '*.js' -print -quit)"
           du -sh dist
       - uses: actions/configure-pages@v5
+        if: github.event_name != 'pull_request'
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: ./dist
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

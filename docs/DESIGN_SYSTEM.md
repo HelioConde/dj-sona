@@ -43,3 +43,6 @@ Preservar a essência: palco escuro, luzes neon, vídeos como cenário e três f
 - Setas horizontais sobre os botões de seleção movem o foco e selecionam a forma de maneira circular.
 - Layout de áudio usa duas colunas em telas estreitas, mantendo alvo de toque e foco visível.
 - Playwright cobre a seleção pelas setas e as resoluções desktop/short/mobile existentes.
+
+## Build Pages com FFmpeg resiliente
+O job de publicação usa primeiro os binários estáticos de FFmpeg/FFprobe com cache por action, evitando a instalação completa no mirror Ubuntu, que causou timeout em 27/10/2026. Se indisponíveis, tenta apt-get sem dependências recomendadas e com limite controlado. O build otimizado e a validação de tamanho continuam **obrigatórios**; PRs executam a mesma verificação, mas não publicam o site. Os vídeos originais não são modificados.
