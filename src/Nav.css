@@ -1,16 +1,58 @@
-.site-header { position: relative; z-index: 5; background: #0b0b1de8; border-bottom: 1px solid #37304f; }
-.site-nav { width: min(1380px, 100%); min-height: 80px; margin: auto; padding: 12px clamp(16px,4vw,56px); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.site-header {
+  position: relative;
+  z-index: 5;
+  flex: 0 0 auto;
+  background: #0b0b1de8;
+  border-bottom: 1px solid #37304f;
+}
+.site-nav {
+  width: min(1380px, 100%);
+  min-height: 68px;
+  margin: auto;
+  padding: 8px clamp(16px, 4vw, 56px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex: 0 0 auto; }
-.brand img { border-radius: 50%; object-fit: cover; }
-.brand-type { font: 28px/0.85 'Bebas Neue', Impact, sans-serif; letter-spacing: .035em; white-space: nowrap; }
+.brand img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+.brand-type {
+  font: 28px/.85 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: .035em;
+  white-space: nowrap;
+}
 .brand-type strong { color: #ff77df; }
-.brand-type small { display: block; font: 700 9px/1.6 'Segoe UI', Arial, sans-serif; letter-spacing: .25em; margin-top: 5px; color: #b9afcf; }
+.brand-type small {
+  display: block;
+  font: 700 9px/1.6 'Segoe UI', Arial, sans-serif;
+  letter-spacing: .25em;
+  margin-top: 5px;
+  color: #b9afcf;
+}
 .nav-links { display: flex; align-items: center; justify-content: center; gap: clamp(12px, 2.5vw, 30px); }
-.nav-link { text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: .045em; color: #c4bcd5; padding: 10px 2px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+.nav-link {
+  padding: 10px 2px;
+  color: #c4bcd5;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .045em;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+}
 .nav-link:hover, .nav-link.active { color: #fff; border-bottom-color: #ef87e5; }
-.nav-github { text-decoration: none; font-weight: 700; font-size: 12px; border: 1px solid #5a4b79; border-radius: 999px; padding: 12px 16px; white-space: nowrap; }
+.nav-github {
+  padding: 10px 16px;
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #5a4b79;
+  border-radius: 999px;
+}
 .nav-github:hover { background: #26203e; }
-@media(max-width: 720px) {
+@media (max-width: 720px) {
   .site-nav { flex-wrap: wrap; gap: 8px; padding-bottom: 0; }
   .brand { flex: 1; }
   .nav-github { padding: 9px 12px; }

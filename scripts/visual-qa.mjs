@@ -3,44 +3,80 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { chromium } from 'playwright'
 
 const base = process.env.QA_URL || 'http://127.0.0.1:4173/dj-sona/'
-const captures = [
-  { name: 'desktop', width: 1440, height: 900 },
-  { name: 'tablet', width: 768, height: 1024 },
-  { name: 'mobile', width: 390, height: 844 },
+const views = [
+  { name: 'desktop-short', width: 1366, height: 640, fit: true },
+  { name: 'desktop', width: 1600, height: 900, fit: true },
+  { name: 'laptop', width: 1024, height: 700, fit: true },
+  { name: 'tablet', width: 768, height: 1024, fit: false },
+  { name: 'mobile', width: 390, height: 844, fit: false },
+  { name: 'mobile-short', width: 390, height: 700, fit: false },
+]
+const routes = [
+  { name: 'historia', link: 'História', heading: /TRÊS FORMAS/i },
+  { name: 'artes', link: 'Artes', heading: /ARTES DAS FORMAS/i },
+  { name: 'videos', link: 'Vídeos', heading: /ASSISTA ÀS FORMAS/i },
 ]
 await mkdir('qa-screenshots', { recursive: true })
 const errors = []
 const results = []
 const browser = await chromium.launch({ headless: true })
+
+async function checkNoHorizontalOverflow(page, name) {
+  const metrics = await page.evaluate(() => ({
+    documentWidth: document.documentElement.scrollWidth,
+    viewportWidth: document.documentElement.clientWidth,
+    pageHeight: document.documentElement.scrollHeight,
+    viewportHeight: window.innerHeight,
+  }))
+  assert.ok(metrics.documentWidth - metrics.viewportWidth <= 2,
+    `${name}: overflow horizontal de ${metrics.documentWidth - metrics.viewportWidth}px`)
+  return metrics
+}
+
+async function checkVisible(page, locator, name) {
+  const bounds = await locator.boundingBox()
+  assert.ok(bounds, `${name}: elemento invisível`)
+  const height = await page.evaluate(() => window.innerHeight)
+  assert.ok(bounds.y >= -2 && bounds.y + bounds.height <= height + 2,
+    `${name}: ultrapassou viewport de ${height}px (y=${bounds.y}, h=${bounds.height})`)
+}
+
 try {
-  for (const viewport of captures) {
+  for (const view of views) {
     const page = await browser.newPage({
-      viewport: { width: viewport.width, height: viewport.height },
+      viewport: { width: view.width, height: view.height },
       reducedMotion: 'reduce',
     })
-    page.on('pageerror', (error) => errors.push(`${viewport.name}: ${error.message}`))
+    page.on('pageerror', (error) => errors.push(`${view.name}: ${error.message}`))
     const response = await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 30000 })
-    assert.equal(response?.status(), 200, 'Página inicial deve responder com HTTP 200')
-    await page.getByRole('heading', { name: /FEEL THE/i }).waitFor({ timeout: 15000 })
-    await page.screenshot({ path: `qa-screenshots/${viewport.name}.png`, fullPage: true })
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
-    assert.ok(overflow <= 2, `Overflow horizontal em ${viewport.name}: ${overflow}px`)
+    assert.equal(response?.status(), 200)
+    await page.getByRole('heading', { name: /FEEL THE/i }).waitFor()
+    await page.screenshot({ path: `qa-screenshots/${view.name}-home.png`, fullPage: true })
+    const metrics = await checkNoHorizontalOverflow(page, view.name)
+
+    if (view.fit) {
+      await checkVisible(page, page.locator('.experience-controls'), `${view.name} controles`)
+      await checkVisible(page, page.locator('.media-note'), `${view.name} nota do áudio`)
+      await checkVisible(page, page.locator('.site-footer'), `${view.name} rodapé`)
+      assert.ok(metrics.pageHeight - metrics.viewportHeight <= 2,
+        `${view.name}: home tem scroll vertical inesperado`)
+    }
     await page.getByRole('button', { name: /Kinetic/i }).click()
     assert.equal(await page.getByRole('button', { name: /Kinetic/i }).getAttribute('aria-pressed'), 'true')
     await page.getByRole('button', { name: /Ativar som/i }).click()
     assert.equal(await page.getByRole('button', { name: /Silenciar/i }).getAttribute('aria-pressed'), 'true')
-    if (viewport.name === 'desktop') {
-      for (const route of [
-        { label: 'História', heading: /TRÊS FORMAS/i },
-        { label: 'Artes', heading: /ARTES DAS FORMAS/i },
-        { label: 'Vídeos', heading: /ASSISTA ÀS FORMAS/i },
-      ]) {
-        await page.getByRole('link', { name: route.label, exact: true }).click()
-        await page.getByRole('heading', { name: route.heading }).waitFor()
-        await page.screenshot({ path: `qa-screenshots/${route.label.toLowerCase()}.png`, fullPage: true })
+
+    for (const route of routes) {
+      await page.getByRole('link', { name: route.link, exact: true }).click()
+      await page.getByRole('heading', { name: route.heading }).waitFor()
+      await checkNoHorizontalOverflow(page, `${view.name}/${route.name}`)
+      if (view.fit) {
+        await checkVisible(page, page.locator('.page-grid'), `${view.name}/${route.name} cards`)
+        await checkVisible(page, page.locator('.back-link'), `${view.name}/${route.name} link final`)
       }
+      await page.screenshot({ path: `qa-screenshots/${view.name}-${route.name}.png`, fullPage: !view.fit })
     }
-    results.push({ viewport: viewport.name, width: viewport.width, height: viewport.height, overflow, passed: true })
+    results.push({ ...view, overflow: metrics.documentWidth - metrics.viewportWidth, passed: true })
     await page.close()
   }
 } finally {
@@ -48,4 +84,4 @@ try {
 }
 await writeFile('qa-screenshots/report.json', JSON.stringify({ results, errors }, null, 2))
 console.log(JSON.stringify({ results, errors }, null, 2))
-assert.deepEqual(errors, [], 'Não deve haver exceções JavaScript durante a navegação')
+assert.deepEqual(errors, [])
