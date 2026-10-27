@@ -42,7 +42,7 @@ npm run preview
 
 O workflow `.github/workflows/pages.yml` publica automaticamente após um push ou merge na `main` pelo **GitHub Actions** (Settings → Pages → Build and deployment → GitHub Actions).
 
-A compilação do Pages transcodifica somente os três MP4 realmente utilizados e remove os demais do artefato publicado. O relatório de tamanho fica em `dist/media-report.json` e é arquivado no CI. A mídia original permanece em `public/movie/`.
+A compilação do Pages transcodifica somente os três MP4 realmente utilizados e remove os demais do artefato publicado. O runner usa o FFmpeg/FFprobe já disponível ou prepara versões estáticas fixadas via npm usando `scripts/ci-media-tools.sh`, evitando downloads lentos pelos mirrors do Ubuntu. A mesma preparação é testada nas PRs. O relatório de tamanho fica em `dist/media-report.json` e é arquivado no CI. A mídia original permanece em `public/movie/`.
 
 A publicação antiga via FTP é manual e separada.
 
