@@ -1,6 +1,8 @@
-name: Publicar no GitHub Pages
+name: QA e GitHub Pages
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
@@ -8,10 +10,10 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,13 +23,44 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: node --test tests/smoke.mjs
       - run: npm run build
         env:
           GITHUB_PAGES: 'true'
+      - name: Instalar Playwright para auditoria visual
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Testar navegação e capturar telas
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dj-sona-qa-${{ github.run_number }}
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+  build:
+    if: github.event_name != 'pull_request'
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          GITHUB_PAGES: 'true'
+      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
