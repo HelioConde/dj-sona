@@ -42,7 +42,7 @@ npm run preview
 
 ## Limitações atuais
 
-Os arquivos MP4 originais são volumosos e também foram adicionados anteriormente a `dist/`; recomenda-se gerar versões web otimizadas, revisar o peso e limpar arquivos de build versionados em etapa separada, sem remover as fontes originais. A reprodução de vídeo e áudio pode variar segundo as políticas do navegador.
+O build agora copia apenas as artes e os três vídeos efetivamente utilizados e, quando o FFmpeg está instalado no ambiente, gera cópias H.264 otimizadas para a pasta `dist` sem alterar o acervo original em `public/`. Sem FFmpeg, funciona com os arquivos originais (maiores). A reprodução de vídeo e áudio pode variar conforme o navegador.
 
 ## Direitos
 
