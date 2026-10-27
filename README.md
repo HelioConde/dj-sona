@@ -1,62 +1,41 @@
-<div align="center">
-  <h1>🎧 DJ Sona — Experiência interativa</h1>
-  <p><strong>Fan project em React inspirado nas três formas musicais de DJ Sona, de League of Legends.</strong></p>
-  <p><img alt="React" src="https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white"> <img alt="Vite" src="https://img.shields.io/badge/Vite-4-646CFF?logo=vite&logoColor=white"> <img alt="Status" src="https://img.shields.io/badge/status-projeto%20experimental-64748b"></p>
-</div>
+# 🎧 DJ Sona — Fan page musical interativa
 
-## O que o projeto apresenta
+Experiência de fã, não oficial, inspirada nas **três formas de DJ Sona** de League of Legends: Kinetic, Concussive e Ethereal.
 
-Uma interface temática com **vídeo de fundo, seleção de formas e controles de áudio**. Em vez de um site estático, o usuário pode mudar a ambientação visual entre as formas de DJ Sona e navegar pelas seções de conteúdo.
+## O que funciona
 
-O código inclui:
+- Três formas com vídeo de fundo, botão de seleção e identidade visual neon.
+- Som desligado por padrão, ativação voluntária e controle de volume.
+- Seções História, Wallpapers e Vídeos com navegação por teclado e toque.
+- Vídeos sob demanda, respeito ao movimento reduzido e layout responsivo.
+- GitHub Pages sem PHP, MySQL, API ou banco de dados: toda interação acontece no navegador.
+- Testes com Playwright e capturas nos tamanhos 375, 768 e 1440 pixels.
 
-| Tela | Rota |
-| --- | --- |
-| Experiência principal e seleção de formas | `/` |
-| História | `/historia` |
-| Wallpapers | `/wallpapers` |
-| Vídeos | `/videos` |
-
-Na página principal, as opções **Kinetic, Concussive e Ethereal** alteram o vídeo de fundo. Os arquivos estão em `public/movie/` e as artes em `public/`.
-
-## Executar localmente
+## Rodar localmente
 
 ```bash
-git clone https://github.com/HelioConde/dj-sona.git
-cd dj-sona
-npm install
+npm ci
 npm run dev
+npm run lint
+npm run build
 ```
 
-O Vite informa o endereço local. Scripts disponíveis:
+Para testes de navegador:
 
 ```bash
-npm run build
-npm run preview
-npm run lint
+npm install --no-save @playwright/test@1.56.1
+npx playwright install chromium
+npx playwright test
 ```
 
-**Atenção técnica:** `src/Home.jsx` importa componentes Font Awesome. Se a dependência não estiver instalada no ambiente, o build poderá falhar; confirme e instale as bibliotecas necessárias antes de executar. Este README não afirma que os builds foram validados nesta revisão.
+## Deploy
 
-## Estrutura
+O workflow `.github/workflows/pages.yml` executa QA e, quando aprovado em `main`, publica `dist/`. Ative **Settings → Pages → Build and deployment → Source: GitHub Actions**. Endereço previsto: https://helioconde.github.io/dj-sona/
 
-```text
-src/
-  App.jsx       Rotas e composição da aplicação
-  Home.jsx      Escolha de formas e mídia
-  History.jsx   História
-  Wallpapers.jsx
-  Movies.jsx
-  Nav.jsx       Navegação
-public/
-  movie/        Vídeos
-  icon*.jpg     Artes das formas
-```
+A navegação usa URLs como `/#/historia`, permitindo abrir e atualizar páginas internas sem precisar de redirecionamentos de servidor. O build Vite usa `base: './'` para preservar os caminhos sob `/dj-sona/`.
 
-## Estado e direitos
+Consulte [Design System](docs/DESIGN_SYSTEM.md) e [Plano de QA](docs/QA_REPORT.md).
 
-**Projeto experimental e não oficial** de interface/fan page, sem integração com conta Riot nem recursos de jogo. Compatibilidade com áudio automático pode variar entre navegadores.
+## Créditos e direitos
 
-DJ Sona, League of Legends e os recursos associados pertencem à Riot Games e aos respectivos titulares. Confira direitos de uso antes de republicar vídeos ou artes.
-
-Desenvolvido por [Hélio Conde](https://github.com/HelioConde).
+Projeto de fã, sem afiliação à Riot Games. DJ Sona, League of Legends, imagens e vídeos pertencem à Riot Games e/ou aos respectivos titulares. Confira permissão de uso antes de redistribuir o conteúdo.
