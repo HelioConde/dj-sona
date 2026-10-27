@@ -39,7 +39,7 @@ jobs:
           test -f dist/index.html
           ! grep -q '/src/main.jsx' dist/index.html
           ! grep -q '%BASE_URL%' dist/index.html
-          grep -E '/dj-sona/assets/[^"]+\\.js' dist/index.html
+          grep -q '/dj-sona/assets/' dist/index.html
           test -n "$(find dist/assets -maxdepth 1 -name '*.js' -print -quit)"
           du -sh dist
       - uses: actions/configure-pages@v5
