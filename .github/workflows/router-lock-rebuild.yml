@@ -35,7 +35,8 @@ jobs:
             const lock=JSON.parse(fs.readFileSync("package-lock.json","utf8"));
             const version=lock.packages?.["node_modules/react-router-dom"]?.version || "";
             console.log("react-router-dom:",version);
-            if (!/^7\\.18\\.[4-9]$|^7\\.(?:19|[2-9][0-9])\\./.test(version)) process.exit(1);
+            const [major, minor, patch] = version.split(".").map(Number);
+            if (major !== 7 || minor < 18 || (minor === 18 && patch < 4) || !Number.isInteger(patch)) process.exit(1);
           '
           npm audit --omit=dev --json > /tmp/dj-sona-router-audit.json || true
           node --input-type=module -e '
