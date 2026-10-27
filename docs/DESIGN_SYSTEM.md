@@ -34,4 +34,5 @@ Preservar a essência: palco escuro, luzes neon, vídeos como cenário e três f
 - Imagens na galeria com `loading="lazy"`.
 - Roteamento via hash para evitar 404 em refresh do GitHub Pages.
 - URLs calculadas por `import.meta.env.BASE_URL`.
-- A pasta `public/movie` ainda tem mídia pesada: otimização/transcodificação é uma etapa futura, sem apagar os originais.
+- Build Pages usa FFmpeg H.264/AAC para preparar três MP4 otimizados com `npm run build:pages`, mantendo os originais no Git e publicando somente as versões reduzidas.
+- Testes Playwright cobrem largura 390 / 768 / 1440, navegação e seleção de forma.
