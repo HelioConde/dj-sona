@@ -161,7 +161,7 @@
 .form-option.selected .form-indicator { background: var(--item-color); box-shadow: 0 0 12px var(--item-color); }
 .audio-panel {
   display: grid;
-  grid-template-columns: auto auto minmax(75px, 100px);
+  grid-template-columns: auto auto auto minmax(75px, 100px);
   align-items: center;
   gap: 12px;
   padding: 11px;
@@ -181,6 +181,9 @@
   font-weight: 700;
 }
 .audio-button:hover { background: #44314f; }
+.audio-button:disabled { opacity: .72; cursor: not-allowed; }
+.playback-button { min-width: 96px; }
+.audio-button { min-height: 44px; }
 .audio-panel input { width: 100%; accent-color: var(--form-color); cursor: pointer; }
 .media-note {
   margin: 0;
@@ -218,5 +221,8 @@
   .form-options { gap: 8px; }
   .form-option { min-width: 0; padding: 9px 5px; font-size: 11px; }
   .form-option img { width: 55px; height: 55px; }
-  .audio-panel { grid-template-columns: auto auto minmax(65px, 1fr); width: 100%; }
+  .audio-panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); width: 100%; }
+  .audio-panel .audio-button { min-width: 0; }
+  .audio-panel label { justify-self: end; }
+  .audio-panel input { min-width: 0; }
 }

@@ -51,6 +51,9 @@ try {
     const response = await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 30000 })
     assert.equal(response?.status(), 200)
     await page.getByRole('heading', { name: /FEEL THE/i }).waitFor()
+    const reducedPlayback = page.getByRole('button', { name: 'Vídeo de fundo desativado por movimento reduzido' })
+    assert.equal(await reducedPlayback.isDisabled(), true, `${view.name}: botão de mídia deve respeitar movimento reduzido`)
+    assert.equal(await page.locator('.scene-background video').count(), 0, `${view.name}: vídeo não deve carregar com movimento reduzido`)
     await page.screenshot({ path: `qa-screenshots/${view.name}-home.png`, fullPage: true })
     const metrics = await checkNoHorizontalOverflow(page, view.name)
 
@@ -79,6 +82,29 @@ try {
     results.push({ ...view, overflow: metrics.documentWidth - metrics.viewportWidth, passed: true })
     await page.close()
   }
+  // A preferência de movimento normal deve oferecer pausas explícitas e controle por teclado.
+  const movingPage = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    reducedMotion: 'no-preference',
+  })
+  movingPage.on('pageerror', (error) => errors.push(`playback: ${error.message}`))
+  await movingPage.goto(base, { waitUntil: 'domcontentloaded', timeout: 30000 })
+  await movingPage.getByRole('heading', { name: /FEEL THE/i }).waitFor()
+  const pause = movingPage.getByRole('button', { name: 'Pausar vídeo de fundo' })
+  assert.equal(await pause.getAttribute('aria-pressed'), 'false')
+  await pause.click()
+  const resume = movingPage.getByRole('button', { name: 'Reproduzir vídeo de fundo' })
+  assert.equal(await resume.getAttribute('aria-pressed'), 'true')
+  await resume.click()
+  assert.equal(await movingPage.getByRole('button', { name: 'Pausar vídeo de fundo' }).getAttribute('aria-pressed'), 'false')
+  const kinetic = movingPage.getByRole('button', { name: /Kinetic/i })
+  await kinetic.focus()
+  await movingPage.keyboard.press('Enter')
+  assert.equal(await kinetic.getAttribute('aria-pressed'), 'true')
+  await checkNoHorizontalOverflow(movingPage, 'playback-mobile')
+  await movingPage.screenshot({ path: 'qa-screenshots/playback-mobile.png', fullPage: true })
+  results.push({ name: 'playback-mobile', width: 390, height: 844, passed: true, tested: ['pause', 'resume', 'keyboard', 'reduced-motion'] })
+  await movingPage.close()
 } finally {
   await browser.close()
 }

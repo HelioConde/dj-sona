@@ -14,6 +14,7 @@ function getSavedForm() {
 export default function Home() {
   const [formId, setFormId] = useState(getSavedForm)
   const [soundOn, setSoundOn] = useState(false)
+  const [paused, setPaused] = useState(false)
   const [volume, setVolume] = useState(0.25)
   const [playbackError, setPlaybackError] = useState(false)
   const [reduceMotion, setReduceMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -42,12 +43,14 @@ export default function Home() {
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-    if (reduceMotion) {
+    if (reduceMotion || paused) {
       video.pause()
     } else {
       video.play().catch(() => { /* navegadores podem exigir gesto do usuário */ })
     }
-  }, [formId, reduceMotion])
+  }, [formId, reduceMotion, paused])
+
+  const togglePlayback = () => setPaused((current) => !current)
 
   const toggleSound = () => {
     const next = !soundOn
@@ -78,7 +81,7 @@ export default function Home() {
         </div>
 
         <div className="stage">
-          <p className="stage-caption">AGORA TOCANDO <span className="stage-separator">/</span> <strong>{currentForm.title.toUpperCase()}</strong></p>
+          <p className="stage-caption">AGORA TOCANDO <span className="stage-separator">/</span> <strong aria-live="polite">{currentForm.title.toUpperCase()}</strong></p>
           <div className="equalizer" aria-hidden="true">
             {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--bar-index': index, height: `${10 + (index * 7) % 26}px` }} />)}
           </div>
@@ -101,7 +104,12 @@ export default function Home() {
               ))}
             </div>
           </fieldset>
-          <div className="audio-panel" aria-label="Controles de áudio">
+          <div className="audio-panel" role="group" aria-label="Controles de vídeo e áudio">
+            <button type="button" className="audio-button playback-button" onClick={togglePlayback}
+              aria-pressed={paused || reduceMotion} disabled={reduceMotion}
+              aria-label={reduceMotion ? 'Vídeo de fundo desativado por movimento reduzido' : paused ? 'Reproduzir vídeo de fundo' : 'Pausar vídeo de fundo'}>
+              <span aria-hidden="true">{reduceMotion ? '◼' : paused ? '▶' : 'Ⅱ'}</span> {reduceMotion ? 'Vídeo parado' : paused ? 'Reproduzir' : 'Pausar'}
+            </button>
             <button type="button" className="audio-button" onClick={toggleSound} aria-pressed={soundOn}>
               <span aria-hidden="true">{soundOn ? '◖))' : '◖×'}</span> {soundOn ? 'Silenciar' : 'Ativar som'}
             </button>
@@ -113,8 +121,9 @@ export default function Home() {
         </div>
         <p className="media-note" role={playbackError ? 'status' : undefined}>
           {playbackError ? 'O vídeo não pôde ser carregado. A arte da forma continua disponível.' :
-            reduceMotion ? 'Movimento reduzido: vídeos de fundo pausados para seu conforto.' :
-              'O som começa desligado por padrão. Ative quando quiser ouvir.'}
+            reduceMotion ? 'Movimento reduzido: vídeo de fundo desativado para seu conforto.' :
+              paused ? 'Vídeo de fundo pausado. Você pode continuar navegando normalmente.' :
+              'O som começa desligado por padrão. Pause o fundo ou ative o áudio quando quiser.'}
         </p>
       </section>
     </main>

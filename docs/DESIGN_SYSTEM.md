@@ -36,3 +36,11 @@ Preservar a essência: palco escuro, luzes neon, vídeos como cenário e três f
 - URLs calculadas por `import.meta.env.BASE_URL`.
 - Build Pages usa FFmpeg H.264/AAC para preparar três MP4 otimizados com `npm run build:pages`, mantendo os originais no Git e publicando somente as versões reduzidas.
 - Testes Playwright cobrem largura 390 / 768 / 1440, navegação e seleção de forma.
+
+## Melhorias de interação e controle (27/10/2026)
+
+- Botão explícito para pausar e retomar o vídeo de fundo, inclusive ao navegar usando teclado.
+- Para `prefers-reduced-motion: reduce`, a mídia de fundo é omitida do DOM, a arte estática continua visível e o botão fica desabilitado com nome acessível.
+- Controles têm `aria-label`, estado `aria-pressed` e alvo mínimo de 44px de altura; em celulares, áudio e vídeo usam duas colunas responsivas.
+- O nome da forma ativa é anunciado por `aria-live="polite"` quando muda.
+- Playwright confere pausa, retomada, teclado, preferência de movimento reduzido, ausência de overflow, rotas e capturas em várias telas.

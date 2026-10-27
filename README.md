@@ -63,3 +63,7 @@ A publicação antiga via FTP é manual e separada.
 DJ Sona, League of Legends e materiais associados pertencem à Riot Games e aos respectivos titulares. Este projeto não é endossado pela Riot Games. Confira termos e direitos antes de republicar imagens e sons.
 
 Desenvolvido por [Hélio Conde](https://github.com/HelioConde).
+
+## Controles de acessibilidade adicionais
+
+O palco inclui **Pausar/Reproduzir** para o vídeo de fundo, independentemente de som e volume. Ao ativar movimento reduzido nas configurações do dispositivo, o site mostra a arte estática e desativa a reprodução automática; essa condição é testada pelo Playwright. Os controles funcionam por toque e teclado.
