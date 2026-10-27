@@ -1,115 +1,122 @@
-import React, { useRef, useEffect, useState } from "react"; // Importe o useEffect aqui
-import "./Home.css";
-import Movie1 from "/movie/DJ-Sona-Concussive2.mp4";
-import Movie2 from "/movie/DJ-Sona-Ethereal2.mp4";
-import Movie3 from "/movie/DJ-Sona-Kinetic2.mp4";
-import icon1 from "/icon1.jpg";
-import icon2 from "/icon2.jpg";
-import icon3 from "/icon3.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faVolumeUp, // Ícone de som ligado
-  faVolumeMute, // Ícone de som desligado
-} from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useRef, useState } from 'react'
+import { FORMS } from './data'
+import './Home.css'
 
-function Home() {
-  const [isSoundOn, setIsSoundOn] = useState(true);
-  const [backgroundVideo, setBackgroundVideo] = useState(Movie1);
-  const [volume, setVolume] = useState(0.2); // Defina o volume inicial
-  const videoRef = useRef(null);
-
-  function handleMouseEnter(form) {
-    if (form === "kinetic") {
-      setBackgroundVideo(Movie3);
-    } else if (form === "concussive") {
-      setBackgroundVideo(Movie1);
-    } else if (form === "ethereal") {
-      setBackgroundVideo(Movie2);
-    }
+function getSavedForm() {
+  try {
+    const saved = localStorage.getItem('dj-sona-form')
+    return FORMS.some((form) => form.id === saved) ? saved : 'concussive'
+  } catch {
+    return 'concussive'
   }
-  function handleMouseLeave() {}
+}
+
+export default function Home() {
+  const [formId, setFormId] = useState(getSavedForm)
+  const [soundOn, setSoundOn] = useState(false)
+  const [volume, setVolume] = useState(0.25)
+  const [playbackError, setPlaybackError] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const videoRef = useRef(null)
+  const currentForm = FORMS.find((form) => form.id === formId) || FORMS[1]
 
   useEffect(() => {
-    const video = document.getElementById("myVideo");
-    const timer = video.currentTime;
-    console.log(timer);
-    video.load();
-    video.currentTime = timer;
-    video.play();
-    document.getElementById("myVideo").volume = 0.02;
-    video.currentTime = timer;
-  }, [backgroundVideo]);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setReduceMotion(mq.matches)
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
 
-  function muted() {
-    const video = document.getElementById("myVideo");
-    video.muted = !isSoundOn; // Inverter o estado do som
-    setIsSoundOn(!isSoundOn); // Inverter o estado no estado do React
-  }
+  useEffect(() => {
+    try { localStorage.setItem('dj-sona-form', formId) } catch { /* storage pode ser bloqueado */ }
+    setPlaybackError(false)
+  }, [formId])
 
-  function handleVolumeChange(e) {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    const video = videoRef.current;
-    video.volume = newVolume;
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = !soundOn
+    video.volume = volume
+  }, [soundOn, volume, formId])
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (reduceMotion) {
+      video.pause()
+    } else {
+      video.play().catch(() => { /* navegadores podem exigir gesto do usuário */ })
+    }
+  }, [formId, reduceMotion])
+
+  const toggleSound = () => {
+    const next = !soundOn
+    const video = videoRef.current
+    if (video) {
+      video.muted = !next
+      video.volume = volume
+      if (next && !reduceMotion) video.play().catch(() => {})
+    }
+    setSoundOn(next)
   }
 
   return (
-    <>
-      <div className="video-background">
-        <video
-          autoPlay
-          muted
-          loop
-          id="myVideo"
-          className="video-element"
-          ref={videoRef}
-        >
-          <source src={backgroundVideo} type="video/mp4" />
-          Seu navegador não suporta a reprodução de vídeo.
-        </video>
+    <main className="experience" style={{ '--form-color': currentForm.color, '--scene-image': `url("${currentForm.image}")` }}>
+      <div className="scene-background" aria-hidden="true">
+        {!reduceMotion && (
+          <video key={formId} ref={videoRef} autoPlay muted={!soundOn} loop playsInline
+            preload="metadata" poster={currentForm.image} src={currentForm.video}
+            onError={() => setPlaybackError(true)} />
+        )}
+        <div className="scene-overlay" />
       </div>
-      <main>
-        <div className="select">
-          <div
-            className="dj-form kinetic"
-            onMouseUp={() => handleMouseEnter("kinetic")}
-          >
-            <img src={icon3} className="iconDjSone iconDjSone1" alt="" />
+      <section className="experience-content" aria-label="Experiência DJ Sona">
+        <div className="intro">
+          <span className="eyebrow"><span className="live-dot" /> EXPERIÊNCIA INTERATIVA</span>
+          <h1>FEEL THE <em>BEAT.</em></h1>
+          <p>Uma artista. Três universos sonoros. Escolha uma forma e transforme a atmosfera.</p>
+        </div>
+
+        <div className="stage">
+          <p className="stage-caption">AGORA TOCANDO <span className="stage-separator">/</span> <strong>{currentForm.title.toUpperCase()}</strong></p>
+          <div className="equalizer" aria-hidden="true">
+            {Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--bar-index': index }} />)}
           </div>
-          <div
-            className="dj-form concussive"
-            onMouseUp={() => handleMouseEnter("concussive")}
-          >
-            <img src={icon1} className="iconDjSone iconDjSone2" alt="" />
-          </div>
-          <div
-            className="dj-form ethereal"
-            onMouseUp={() => handleMouseEnter("ethereal")}
-          >
-            <img src={icon2} className="iconDjSone iconDjSone3" alt="" />
+          <h2>{currentForm.subtitle}</h2>
+          <p className="stage-description">{currentForm.description}</p>
+        </div>
+
+        <div className="experience-controls">
+          <fieldset className="form-picker">
+            <legend>ESCOLHA SUA FORMA</legend>
+            <div className="form-options">
+              {FORMS.map((form) => (
+                <button key={form.id} className={`form-option${formId === form.id ? ' selected' : ''}`}
+                  style={{ '--item-color': form.color }} type="button" aria-pressed={formId === form.id}
+                  onClick={() => setFormId(form.id)}>
+                  <img src={form.image} alt="" width="68" height="68" />
+                  <span>{form.title}</span>
+                  <span className="form-indicator" aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <div className="audio-panel" aria-label="Controles de áudio">
+            <button type="button" className="audio-button" onClick={toggleSound} aria-pressed={soundOn}>
+              <span aria-hidden="true">{soundOn ? '◖))' : '◖×'}</span> {soundOn ? 'Silenciar' : 'Ativar som'}
+            </button>
+            <label htmlFor="volume">VOLUME</label>
+            <input id="volume" type="range" min="0" max="1" step="0.05" value={volume}
+              onChange={(event) => setVolume(Number(event.target.value))}
+              aria-label="Volume da experiência" />
           </div>
         </div>
-      </main>
-      <div className="volumeStyle">
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={handleVolumeChange}
-        />
-      </div>
-      <button className="sound" onClick={() => muted()}>
-        {!isSoundOn ? (
-          <FontAwesomeIcon icon={faVolumeUp} className="icon" /> // Ícone de som ligado
-        ) : (
-          <FontAwesomeIcon icon={faVolumeMute} className="icon" /> // Ícone de som desligado
-        )}
-      </button>
-      <div className="fluter">Em devenvolvimentro</div>
-    </>
-  );
+        <p className="media-note" role={playbackError ? 'status' : undefined}>
+          {playbackError ? 'O vídeo não pôde ser carregado. A arte da forma continua disponível.' :
+            reduceMotion ? 'Movimento reduzido: vídeos de fundo pausados para seu conforto.' :
+              'O som começa desligado por padrão. Ative quando quiser ouvir.'}
+        </p>
+      </section>
+    </main>
+  )
 }
-
-export default Home;

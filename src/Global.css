@@ -1,11 +1,26 @@
-* {
-    margin: 0;
-    padding: 0;
-}
-
 @font-face {
-    font-family: 'Bebas Neue';
-    src: url('./font/FuturaHand.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Bebas Neue';
+  src: url('/font/BebasNeue-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+:root {
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+  color: #f7f5ff;
+  background: #080916;
+  font-synthesis: none;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { min-width: 320px; scroll-behavior: smooth; }
+body { min-width: 320px; margin: 0; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid #b8dcff; outline-offset: 4px;
+}
+::selection { background: #e96acb; color: #070817; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }

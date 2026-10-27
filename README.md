@@ -1,62 +1,51 @@
-<div align="center">
-  <h1>🎧 DJ Sona — Experiência interativa</h1>
-  <p><strong>Fan project em React inspirado nas três formas musicais de DJ Sona, de League of Legends.</strong></p>
-  <p><img alt="React" src="https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white"> <img alt="Vite" src="https://img.shields.io/badge/Vite-4-646CFF?logo=vite&logoColor=white"> <img alt="Status" src="https://img.shields.io/badge/status-projeto%20experimental-64748b"></p>
-</div>
+# 🎧 DJ Sona — Três formas. Uma experiência.
 
-## O que o projeto apresenta
+Fan project não oficial em React e Vite inspirado em **DJ Sona, de League of Legends**. Uma experiência audiovisual com os vídeos e ícones do projeto original — Kinetic, Concussive e Ethereal — preservados.
 
-Uma interface temática com **vídeo de fundo, seleção de formas e controles de áudio**. Em vez de um site estático, o usuário pode mudar a ambientação visual entre as formas de DJ Sona e navegar pelas seções de conteúdo.
+## Ao vivo
 
-O código inclui:
+**GitHub Pages (após publicar a branch principal):** https://helioconde.github.io/dj-sona/
 
-| Tela | Rota |
-| --- | --- |
-| Experiência principal e seleção de formas | `/` |
-| História | `/historia` |
-| Wallpapers | `/wallpapers` |
-| Vídeos | `/videos` |
+Não há conta, API, backend nem banco de dados. O único dado salvo localmente é a última forma selecionada.
 
-Na página principal, as opções **Kinetic, Concussive e Ethereal** alteram o vídeo de fundo. Os arquivos estão em `public/movie/` e as artes em `public/`.
+## Funcionalidades
 
-## Executar localmente
+- Seleção de Kinetic / Concussive / Ethereal por teclado, mouse ou toque
+- Vídeo de fundo correspondente com controles de volume e áudio inicialmente desligado
+- Modo de movimento reduzido com arte de fundo estática
+- História, galeria de artes com download e galeria de vídeos
+- Interface responsiva e acessível com estética neon original
+- Rotas compatíveis com GitHub Pages usando `HashRouter`
+- Testes básicos e publicação automatizada no GitHub Actions
+
+## Rodar localmente
+
+Requer Node.js 22+.
 
 ```bash
-git clone https://github.com/HelioConde/dj-sona.git
-cd dj-sona
-npm install
+npm ci
 npm run dev
-```
-
-O Vite informa o endereço local. Scripts disponíveis:
-
-```bash
+npm run lint
+npm run test
 npm run build
 npm run preview
-npm run lint
 ```
 
-**Atenção técnica:** `src/Home.jsx` importa componentes Font Awesome. Se a dependência não estiver instalada no ambiente, o build poderá falhar; confirme e instale as bibliotecas necessárias antes de executar. Este README não afirma que os builds foram validados nesta revisão.
+## Publicar no GitHub Pages
 
-## Estrutura
+1. Mescle a branch de modernização em `main`.
+2. No repositório, em **Settings → Pages → Build and deployment**, selecione **GitHub Actions**.
+3. O workflow `.github/workflows/pages.yml` compila o Vite e publica o `dist/` ao atualizar `main`.
+4. Abra https://helioconde.github.io/dj-sona/ — páginas internas funcionam via `/#/historia`, `/#/wallpapers`, `/#/videos`.
 
-```text
-src/
-  App.jsx       Rotas e composição da aplicação
-  Home.jsx      Escolha de formas e mídia
-  History.jsx   História
-  Wallpapers.jsx
-  Movies.jsx
-  Nav.jsx       Navegação
-public/
-  movie/        Vídeos
-  icon*.jpg     Artes das formas
-```
+**Importante:** o deploy antigo para Locaweb permanece disponível por acionamento manual, não é executado a cada push.
 
-## Estado e direitos
+## Limitações atuais
 
-**Projeto experimental e não oficial** de interface/fan page, sem integração com conta Riot nem recursos de jogo. Compatibilidade com áudio automático pode variar entre navegadores.
+Os arquivos MP4 originais são volumosos e também foram adicionados anteriormente a `dist/`; recomenda-se gerar versões web otimizadas, revisar o peso e limpar arquivos de build versionados em etapa separada, sem remover as fontes originais. A reprodução de vídeo e áudio pode variar segundo as políticas do navegador.
 
-DJ Sona, League of Legends e os recursos associados pertencem à Riot Games e aos respectivos titulares. Confira direitos de uso antes de republicar vídeos ou artes.
+## Direitos
 
-Desenvolvido por [Hélio Conde](https://github.com/HelioConde).
+Este é um projeto de fã sem afiliação ou endosso da Riot Games. DJ Sona, League of Legends e as artes/mídias relacionadas pertencem aos seus respectivos titulares. Verifique as permissões antes de republicar ou distribuir arquivos.
+
+Criado por [Hélio Conde](https://github.com/HelioConde).

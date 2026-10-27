@@ -1,59 +1,19 @@
-nav {
-    z-index: 1;
-    display: flex;
-    background-color: rgba(0, 123, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(0, 123, 255, 0.2);
-    transition: background-color 0.3s ease;
-    width: 69.5%;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: auto;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    height: 70px;
-    align-items: center;
-    padding: 0 15%;
-    background: linear-gradient(to bottom, rgba(255, 0, 204, 0.5), rgba(51, 51, 255, 0.2));
-    /* Substitua as cores pelas que você deseja usar */
-    /* Ajuste a altura da navbar conforme necessário */
-    color: #fff;
-    /* Cor do texto na navbar */
-    font-size: 18px;
-}
-
-.icon {
-    width: 50px;
-}
-
-
-.navMain {
-    display: flex;
-    align-items: center;
-    width: 55%;
-    justify-content: space-between;
-}
-
-.navMain div {
-    cursor: pointer;
-}
-
-.rede a{
-    cursor: pointer;
-    color: white;
-}
-
-.rede {
-    display: flex;
-    align-items: center;
-    width: 20%;
-    justify-content: space-between;
-}
-
-/* Estilo do botão ao clicar/hover */
-.button-azul-rosa:hover {
-    background-color: #ff69b4;
-    /* Rosa vibrante */
-    border: 2px solid #ff69b4;
-    /* Cor da borda igual à cor de fundo */
+.site-header { position: relative; z-index: 5; background: #0b0b1de8; border-bottom: 1px solid #37304f; }
+.site-nav { width: min(1380px, 100%); min-height: 80px; margin: auto; padding: 12px clamp(16px,4vw,56px); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex: 0 0 auto; }
+.brand img { border-radius: 50%; object-fit: cover; }
+.brand-type { font: 28px/0.85 'Bebas Neue', Impact, sans-serif; letter-spacing: .035em; white-space: nowrap; }
+.brand-type strong { color: #ff77df; }
+.brand-type small { display: block; font: 700 9px/1.6 'Segoe UI', Arial, sans-serif; letter-spacing: .25em; margin-top: 5px; color: #b9afcf; }
+.nav-links { display: flex; align-items: center; justify-content: center; gap: clamp(12px, 2.5vw, 30px); }
+.nav-link { text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: .045em; color: #c4bcd5; padding: 10px 2px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+.nav-link:hover, .nav-link.active { color: #fff; border-bottom-color: #ef87e5; }
+.nav-github { text-decoration: none; font-weight: 700; font-size: 12px; border: 1px solid #5a4b79; border-radius: 999px; padding: 12px 16px; white-space: nowrap; }
+.nav-github:hover { background: #26203e; }
+@media(max-width: 720px) {
+  .site-nav { flex-wrap: wrap; gap: 8px; padding-bottom: 0; }
+  .brand { flex: 1; }
+  .nav-github { padding: 9px 12px; }
+  .nav-links { order: 3; width: 100%; justify-content: space-between; gap: 8px; }
+  .nav-link { padding: 12px 2px; }
 }
