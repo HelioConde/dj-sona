@@ -1,0 +1,64 @@
+name: DJ Sona - Rebuild modern toolchain lockfile
+on:
+  push:
+    branches: [fix/modern-toolchain-vite7-eslint9-20261027]
+    paths:
+      - package.json
+      - package-lock.json
+      - eslint.config.js
+      - .github/workflows/toolchain-lock-rebuild.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dj-sona-modern-toolchain-lock
+  cancel-in-progress: false
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Generate lockfile with modern Vite and ESLint dependencies
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Validate toolchain and production dependency versions
+        run: |
+          node --check eslint.config.js
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+            for (const [name, minMajor] of [["vite",7],["@vitejs/plugin-react",5],["eslint",9],["eslint-plugin-react-hooks",7]]) {
+              const version = lock.packages?.["node_modules/"+name]?.version;
+              if (!version || Number(version.split(".")[0]) < minMajor) throw Error("Invalid version for " + name + ": " + version);
+              console.log(name + "@" + version);
+            }
+          '
+      - name: Collect npm security audit without blocking lockfile generation
+        shell: bash
+        run: |
+          npm audit --json > /tmp/toolchain-audit.json || true
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const report = JSON.parse(fs.readFileSync("/tmp/toolchain-audit.json","utf8"));
+            if (!report.metadata?.vulnerabilities) throw Error("Audit API response missing");
+            console.log("All dependency alerts:", JSON.stringify(report.metadata.vulnerabilities));
+          '
+      - name: Commit regenerated lockfile to modernization branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          if git diff --cached --quiet; then
+            echo "Lockfile already regenerated." >> "$GITHUB_STEP_SUMMARY"
+          else
+            git commit -m "chore(lockfile): regenerate Vite7 and ESLint9 dependency tree"
+            git push origin HEAD:fix/modern-toolchain-vite7-eslint9-20261027
+          fi
