@@ -12,11 +12,11 @@ test('originais permanecem intactos e três vídeos alimentam a experiência', (
   }
 })
 test('o workflow sempre publica mídia compactada, e não MP4s originais', () => {
-  for (const file of ['.github/workflows/pages.yml', '.github/workflows/ci.yml']) {
-    const workflow = read(file)
-    assert.match(workflow, /npm run build:pages/)
-    assert.match(workflow, /npm run media:check/)
-  }
+  const deployment = read('.github/workflows/pages.yml')
+  assert.match(deployment, /npm run build:pages/)
+  assert.match(deployment, /npm run media:check/)
+  // Capturas usam build rápido; a publicação real continua validando os vídeos.
+  assert.match(read('.github/workflows/ci.yml'), /npm run build/)
   assert.match(read('vite.config.js'), /publicDir:\s*false/)
   const script = read('scripts/optimize-media.mjs')
   assert.match(script, /ffmpeg/)
