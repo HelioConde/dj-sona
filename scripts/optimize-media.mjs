@@ -4,7 +4,7 @@
  * Requer FFmpeg e FFprobe disponíveis no PATH.
  */
 import { spawnSync } from 'node:child_process'
-import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { copyPublicAssets } from './copy-public-assets.mjs'
 
@@ -47,24 +47,28 @@ try {
       '-hide_banner', '-loglevel', 'error', '-y', '-i', original,
       '-map', '0:v:0', '-map', '0:a:0?',
       '-vf', "scale='min(iw,1280)':'min(ih,720)':force_original_aspect_ratio=decrease:force_divisible_by=2",
-      '-c:v', 'libx264', '-preset', 'fast', '-crf', '30',
-      '-maxrate', '1100k', '-bufsize', '2200k',
+      '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '31',
+      '-maxrate', '1000k', '-bufsize', '2000k',
       '-pix_fmt', 'yuv420p', '-r', '24',
       '-c:a', 'aac', '-b:a', '96k', '-ac', '2',
       '-movflags', '+faststart',
       optimized,
     ])
-    const after = await stat(optimized)
-    const outputDuration = duration(optimized)
-    if (after.size > before.size || after.size <= 1024) {
-      throw new Error(`O vídeo ${filename} não foi compactado adequadamente`)
+    let after = await stat(optimized)
+    if (after.size >= before.size) {
+      console.log(`Sem economia em ${filename}; publicando o original preservado.`)
+      await copyFile(original, optimized)
+      after = await stat(optimized)
     }
+    const outputDuration = duration(optimized)
+    if (after.size <= 1024) throw new Error(`O vídeo ${filename} está corrompido.`)
+    console.log(`${filename}: ${(before.size / 1e6).toFixed(1)} MB → ${(after.size / 1e6).toFixed(1)} MB`)
     if (outputDuration < sourceDuration * 0.98) {
       throw new Error(`O vídeo ${filename} perdeu conteúdo durante a conversão`)
     }
     stats.push({ filename, originalBytes: before.size, publishedBytes: after.size, durationSeconds: Math.round(outputDuration), savingPercent: Math.round((1 - after.size / before.size) * 100) })
   }
-  // O Vite copia public/ inteiro; trocar apenas após a validação de TODOS os vídeos.
+  // Trocar o diretório de publicação somente após validar TODOS os vídeos.
   await rm(outputDir, { recursive: true, force: true })
   await mkdir(outputDir, { recursive: true })
   for (const filename of files) await rename(path.join(tempDir, filename), path.join(outputDir, filename))
