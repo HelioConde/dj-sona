@@ -63,3 +63,7 @@ A publicação antiga via FTP é manual e separada.
 DJ Sona, League of Legends e materiais associados pertencem à Riot Games e aos respectivos titulares. Este projeto não é endossado pela Riot Games. Confira termos e direitos antes de republicar imagens e sons.
 
 Desenvolvido por [Hélio Conde](https://github.com/HelioConde).
+
+## Atualização das ferramentas de desenvolvimento
+
+A pipeline usa **Vite 7.3.7** e **ESLint 9 (flat config em `eslint.config.js`)**, preservando React 18, as rotas `HashRouter`, o base path `/dj-sona/` e a otimização FFmpeg dos três MP4. As versões exatas ficam travadas no `package-lock.json`. Execute `npm ci`, `npm run lint`, `npm run test`, `npm run build` e o Playwright em PRs antes de publicar. A auditoria das dependências roda toda segunda-feira e por alterações no manifesto.
