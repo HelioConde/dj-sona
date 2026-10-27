@@ -23,6 +23,9 @@ jobs:
           cache: npm
       - name: Install project dependencies
         run: npm ci
+      - name: Validate FFmpeg bootstrap used by Pages
+        timeout-minutes: 10
+        run: bash scripts/ci-media-tools.sh
       - name: Static source checks
         run: npm run lint && npm run test
       # QA visual usa as mídias locais; FFmpeg e media:check são validados no deploy de Pages.
