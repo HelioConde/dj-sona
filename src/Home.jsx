@@ -1,115 +1,100 @@
-import React, { useRef, useEffect, useState } from "react"; // Importe o useEffect aqui
-import "./Home.css";
-import Movie1 from "/movie/DJ-Sona-Concussive2.mp4";
-import Movie2 from "/movie/DJ-Sona-Ethereal2.mp4";
-import Movie3 from "/movie/DJ-Sona-Kinetic2.mp4";
-import icon1 from "/icon1.jpg";
-import icon2 from "/icon2.jpg";
-import icon3 from "/icon3.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faVolumeUp, // Ícone de som ligado
-  faVolumeMute, // Ícone de som desligado
-} from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useRef, useState } from 'react'
+import './Home.css'
 
-function Home() {
-  const [isSoundOn, setIsSoundOn] = useState(true);
-  const [backgroundVideo, setBackgroundVideo] = useState(Movie1);
-  const [volume, setVolume] = useState(0.2); // Defina o volume inicial
-  const videoRef = useRef(null);
+const forms = [
+  { id: 'kinetic', name: 'Kinetic', subtitle: 'O pulso da energia', icon: 'icon3.jpg', movie: 'DJ-Sona-Kinetic2.mp4' },
+  { id: 'concussive', name: 'Concussive', subtitle: 'A força da batida', icon: 'icon1.jpg', movie: 'DJ-Sona-Concussive2.mp4' },
+  { id: 'ethereal', name: 'Ethereal', subtitle: 'A harmonia do espaço', icon: 'icon2.jpg', movie: 'DJ-Sona-Ethereal2.mp4' },
+]
 
-  function handleMouseEnter(form) {
-    if (form === "kinetic") {
-      setBackgroundVideo(Movie3);
-    } else if (form === "concussive") {
-      setBackgroundVideo(Movie1);
-    } else if (form === "ethereal") {
-      setBackgroundVideo(Movie2);
-    }
-  }
-  function handleMouseLeave() {}
+export default function Home() {
+  const [active, setActive] = useState('concussive')
+  const [muted, setMuted] = useState(true)
+  const [volume, setVolume] = useState(0.2)
+  const [motionEnabled, setMotionEnabled] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [videoError, setVideoError] = useState(false)
+  const videoRef = useRef(null)
+  const selected = forms.find((form) => form.id === active)
 
   useEffect(() => {
-    const video = document.getElementById("myVideo");
-    const timer = video.currentTime;
-    console.log(timer);
-    video.load();
-    video.currentTime = timer;
-    video.play();
-    document.getElementById("myVideo").volume = 0.02;
-    video.currentTime = timer;
-  }, [backgroundVideo]);
+    const video = videoRef.current
+    if (!video) return
+    video.volume = volume
+    video.muted = muted
+    video.play().catch(() => {
+      // Navegadores podem bloquear reprodução automática; a interface continua utilizável.
+    })
+  }, [active, muted, volume, motionEnabled])
 
-  function muted() {
-    const video = document.getElementById("myVideo");
-    video.muted = !isSoundOn; // Inverter o estado do som
-    setIsSoundOn(!isSoundOn); // Inverter o estado no estado do React
-  }
-
-  function handleVolumeChange(e) {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    const video = videoRef.current;
-    video.volume = newVolume;
+  const chooseForm = (formId) => {
+    setActive(formId)
+    setVideoError(false)
   }
 
   return (
-    <>
-      <div className="video-background">
+    <main id="conteudo" className={'home theme-' + active}>
+      {motionEnabled && !videoError && (
         <video
-          autoPlay
-          muted
-          loop
-          id="myVideo"
-          className="video-element"
+          key={active}
           ref={videoRef}
+          className="home-video"
+          aria-hidden="true"
+          autoPlay
+          muted={muted}
+          playsInline
+          loop
+          preload="metadata"
+          onError={() => setVideoError(true)}
         >
-          <source src={backgroundVideo} type="video/mp4" />
-          Seu navegador não suporta a reprodução de vídeo.
+          <source src={import.meta.env.BASE_URL + 'movie/' + selected.movie} type="video/mp4" />
         </video>
-      </div>
-      <main>
-        <div className="select">
-          <div
-            className="dj-form kinetic"
-            onMouseUp={() => handleMouseEnter("kinetic")}
-          >
-            <img src={icon3} className="iconDjSone iconDjSone1" alt="" />
-          </div>
-          <div
-            className="dj-form concussive"
-            onMouseUp={() => handleMouseEnter("concussive")}
-          >
-            <img src={icon1} className="iconDjSone iconDjSone2" alt="" />
-          </div>
-          <div
-            className="dj-form ethereal"
-            onMouseUp={() => handleMouseEnter("ethereal")}
-          >
-            <img src={icon2} className="iconDjSone iconDjSone3" alt="" />
-          </div>
+      )}
+      <div className="home-shade" aria-hidden="true" />
+      <div className="home-content">
+        <p className="eyebrow">UMA EXPERIÊNCIA MUSICAL</p>
+        <h1>ESCOLHA SUA <span>FREQUÊNCIA</span></h1>
+        <p className="home-intro">Três formas. Três atmosferas. Uma única DJ Sona. Selecione sua energia e explore esta homenagem interativa.</p>
+        <div className="forms" role="group" aria-label="Selecione a forma de DJ Sona">
+          {forms.map((form) => (
+            <button
+              key={form.id}
+              type="button"
+              className={'form-card form-' + form.id + (active === form.id ? ' is-selected' : '')}
+              aria-pressed={active === form.id}
+              onClick={() => chooseForm(form.id)}
+              aria-label={'Selecionar ' + form.name}
+            >
+              <img src={import.meta.env.BASE_URL + form.icon} alt="" width="104" height="104" />
+              <strong>{form.name}</strong>
+              <span>{form.subtitle}</span>
+            </button>
+          ))}
         </div>
-      </main>
-      <div className="volumeStyle">
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={handleVolumeChange}
-        />
+        <p className="form-status" aria-live="polite">Agora tocando: <strong>{selected.name}</strong></p>
+        <div className="player-controls" aria-label="Controles da experiência">
+          <button
+            className="control-button"
+            type="button"
+            aria-pressed={!muted}
+            onClick={() => setMuted((value) => !value)}
+          >
+            {muted ? 'Ativar áudio' : 'Silenciar áudio'}
+          </button>
+          <label className="volume-control">
+            <span>Volume</span>
+            <input type="range" min="0" max="1" step="0.05" value={volume}
+              aria-label="Volume do vídeo" onChange={(event) => setVolume(Number(event.target.value))} />
+          </label>
+          <button className="control-button" type="button"
+            aria-pressed={motionEnabled}
+            onClick={() => setMotionEnabled((value) => !value)}
+          >
+            {motionEnabled ? 'Desativar movimento' : 'Ativar vídeo'}
+          </button>
+        </div>
+        <p className="home-note">O áudio começa desligado. Respeitamos sua preferência de movimento reduzido.</p>
+        {videoError && <p className="home-note" role="status">O vídeo não pôde ser carregado. Você ainda pode explorar as formas.</p>}
       </div>
-      <button className="sound" onClick={() => muted()}>
-        {!isSoundOn ? (
-          <FontAwesomeIcon icon={faVolumeUp} className="icon" /> // Ícone de som ligado
-        ) : (
-          <FontAwesomeIcon icon={faVolumeMute} className="icon" /> // Ícone de som desligado
-        )}
-      </button>
-      <div className="fluter">Em devenvolvimentro</div>
-    </>
-  );
+    </main>
+  )
 }
-
-export default Home;

@@ -1,59 +1,24 @@
-nav {
-    z-index: 1;
-    display: flex;
-    background-color: rgba(0, 123, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(0, 123, 255, 0.2);
-    transition: background-color 0.3s ease;
-    width: 69.5%;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: auto;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    height: 70px;
-    align-items: center;
-    padding: 0 15%;
-    background: linear-gradient(to bottom, rgba(255, 0, 204, 0.5), rgba(51, 51, 255, 0.2));
-    /* Substitua as cores pelas que você deseja usar */
-    /* Ajuste a altura da navbar conforme necessário */
-    color: #fff;
-    /* Cor do texto na navbar */
-    font-size: 18px;
+.site-header { position: relative; z-index: 10; padding: 16px clamp(16px, 4vw, 60px); }
+.site-nav {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 16px 24px; width: min(1200px, 100%); margin: auto; padding: 10px 20px;
+  border: 1px solid var(--border); border-radius: 20px;
+  background: rgba(16, 13, 39, .88); box-shadow: 0 12px 40px rgba(0, 0, 0, .16);
+  backdrop-filter: blur(16px);
 }
-
-.icon {
-    width: 50px;
-}
-
-
-.navMain {
-    display: flex;
-    align-items: center;
-    width: 55%;
-    justify-content: space-between;
-}
-
-.navMain div {
-    cursor: pointer;
-}
-
-.rede a{
-    cursor: pointer;
-    color: white;
-}
-
-.rede {
-    display: flex;
-    align-items: center;
-    width: 20%;
-    justify-content: space-between;
-}
-
-/* Estilo do botão ao clicar/hover */
-.button-azul-rosa:hover {
-    background-color: #ff69b4;
-    /* Rosa vibrante */
-    border: 2px solid #ff69b4;
-    /* Cor da borda igual à cor de fundo */
+.nav-brand { display: inline-flex; align-items: center; gap: 8px; min-width: max-content; text-decoration: none; font-size: 19px; letter-spacing: .07em; }
+.nav-brand img { width: 44px; height: 44px; object-fit: contain; border-radius: 50%; }
+.nav-brand strong { color: var(--pink); }
+.nav-links { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+.nav-link { display: inline-block; text-decoration: none; padding: 11px 14px; border-radius: 10px; font-weight: 600; font-size: 14px; color: var(--text-muted); }
+.nav-link:hover, .nav-link.is-active { color: #fff; background: rgba(170, 123, 255, .20); }
+.nav-link.is-active { box-shadow: inset 0 -2px 0 var(--pink); }
+.nav-github { display: inline-flex; min-width: max-content; align-items: center; gap: 6px; color: var(--cyan); text-decoration: none; font-size: 13px; font-weight: 700; }
+.nav-github:hover { text-decoration: underline; }
+@media (max-width: 740px) {
+  .site-nav { justify-content: center; padding: 12px; }
+  .nav-brand { margin-right: auto; }
+  .nav-github { margin-left: auto; }
+  .nav-links { order: 3; width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .nav-link { text-align: center; padding: 10px 3px; font-size: 12px; }
 }
