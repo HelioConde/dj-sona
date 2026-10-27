@@ -43,17 +43,6 @@ jobs:
           test -n "$(find dist/assets -maxdepth 1 -name '*.js' -print -quit)"
           du -sh dist
       - uses: actions/configure-pages@v5
-      - name: Set Pages publication source to GitHub Actions
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # A branch-based Pages build publishes index.html source, breaking JSX and %BASE_URL%.
-          # Pages REST API requires Pages write permission, already granted above.
-          if gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow --jq '.build_type'; then
-            echo "GitHub Pages configured to deploy Actions artifacts."
-          else
-            echo "::warning::Could not switch Pages source automatically. Open Settings > Pages > Build and deployment > Source > GitHub Actions."
-          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
