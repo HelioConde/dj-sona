@@ -58,7 +58,7 @@ export default function Home() {
     if (video) {
       video.muted = !next
       video.volume = volume
-      if (next && !reduceMotion) video.play().catch(() => {})
+      if (next && !reduceMotion && !videoPaused) video.play().catch(() => {})
     }
     setSoundOn(next)
   }
@@ -67,7 +67,7 @@ export default function Home() {
     <main className="experience" style={{ '--form-color': currentForm.color, '--scene-image': `url("${currentForm.image}")` }}>
       <div className="scene-background" aria-hidden="true">
         {!reduceMotion && (
-          <video key={formId} ref={videoRef} autoPlay muted={!soundOn} loop playsInline
+          <video key={formId} ref={videoRef} autoPlay={!videoPaused} muted={!soundOn} loop playsInline
             preload="metadata" poster={currentForm.image} src={currentForm.video}
             onError={() => setPlaybackError(true)} />
         )}
