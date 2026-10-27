@@ -4,8 +4,9 @@
  * Requer FFmpeg e FFprobe disponíveis no PATH.
  */
 import { spawnSync } from 'node:child_process'
-import { copyFile, mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { copyPublicAssets } from './copy-public-assets.mjs'
 
 const files = [
   'DJ-Sona-Kinetic2.mp4',
@@ -32,6 +33,7 @@ function duration(file) {
   return seconds
 }
 
+await copyPublicAssets(root)
 await mkdir(tempDir, { recursive: true })
 const stats = []
 try {

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prepare-public.mjs",
     "build:pages": "vite build && node scripts/optimize-media.mjs",
     "media:optimize": "node scripts/optimize-media.mjs",
     "media:check": "node scripts/check-media.mjs",

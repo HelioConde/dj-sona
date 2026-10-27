@@ -17,6 +17,7 @@ test('o workflow sempre publica mídia compactada, e não MP4s originais', () =>
     assert.match(workflow, /npm run build:pages/)
     assert.match(workflow, /npm run media:check/)
   }
+  assert.match(read('vite.config.js'), /publicDir:\\s*false/)
   const script = read('scripts/optimize-media.mjs')
   assert.match(script, /ffmpeg/)
   assert.match(script, /ffprobe/)
