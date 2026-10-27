@@ -33,13 +33,27 @@ jobs:
         run: npm run lint && npm run test
       - name: Build optimized static site
         run: npm run build:pages
-      - name: Verify media and Pages base path
+      - name: Verify compiled Vite entry, not development HTML
         run: |
           npm run media:check
           test -f dist/index.html
-          grep -q '/dj-sona/' dist/index.html
+          ! grep -q '/src/main.jsx' dist/index.html
+          ! grep -q '%BASE_URL%' dist/index.html
+          grep -E '/dj-sona/assets/[^"]+\\.js' dist/index.html
+          test -n "$(find dist/assets -maxdepth 1 -name '*.js' -print -quit)"
           du -sh dist
       - uses: actions/configure-pages@v5
+      - name: Set Pages publication source to GitHub Actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A branch-based Pages build publishes index.html source, breaking JSX and %BASE_URL%.
+          # Pages REST API requires Pages write permission, already granted above.
+          if gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow --jq '.build_type'; then
+            echo "GitHub Pages configured to deploy Actions artifacts."
+          else
+            echo "::warning::Could not switch Pages source automatically. Open Settings > Pages > Build and deployment > Source > GitHub Actions."
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
@@ -52,3 +66,18 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Check the live HTML does not expose Vite source paths
+        run: |
+          for attempt in $(seq 1 10); do
+            if curl --fail --silent --show-error --location --max-time 15 --header 'Cache-Control: no-cache' "https://helioconde.github.io/dj-sona/?deploy=${GITHUB_SHA}" -o /tmp/dj-sona-live.html &&
+               ! grep -q '/src/main.jsx' /tmp/dj-sona-live.html &&
+               ! grep -q '%BASE_URL%' /tmp/dj-sona-live.html &&
+               grep -q '/dj-sona/assets/' /tmp/dj-sona-live.html; then
+              echo "Live GitHub Pages is serving the compiled Vite HTML."
+              exit 0
+            fi
+            echo "Site not updated yet (attempt ${attempt}/10)."
+            sleep 12
+          done
+          echo "::error::Live Pages still serves uncompiled HTML. Go to Settings > Pages > Build and deployment > Source and select GitHub Actions."
+          exit 1
