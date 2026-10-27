@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prepare-public.mjs",
+    "build:pages": "vite build && node scripts/optimize-media.mjs",
+    "media:optimize": "node scripts/optimize-media.mjs",
+    "media:check": "node scripts/check-media.mjs",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "test": "node --test tests/*.test.mjs",
     "preview": "vite preview"

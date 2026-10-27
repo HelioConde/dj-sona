@@ -1,26 +1,16 @@
 # 🎧 DJ Sona — Três formas. Uma experiência.
 
-Fan project não oficial em React e Vite inspirado em **DJ Sona, de League of Legends**. Uma experiência audiovisual com os vídeos e ícones do projeto original — Kinetic, Concussive e Ethereal — preservados.
+Fan project **não oficial**, inspirado em DJ Sona, de League of Legends. O conceito original permanece: um palco com vídeo de fundo, neon e três identidades — Kinetic, Concussive e Ethereal.
 
-## Ao vivo
+## Site publicado
 
-**GitHub Pages (após publicar a branch principal):** https://helioconde.github.io/dj-sona/
+https://helioconde.github.io/dj-sona/
 
-Não há conta, API, backend nem banco de dados. O único dado salvo localmente é a última forma selecionada.
+É uma aplicação estática React + Vite com `HashRouter`, **sem API, login, banco de dados nem backend**. A última forma selecionada é guardada apenas no navegador.
 
-## Funcionalidades
+## Usar localmente
 
-- Seleção de Kinetic / Concussive / Ethereal por teclado, mouse ou toque
-- Vídeo de fundo correspondente com controles de volume e áudio inicialmente desligado
-- Modo de movimento reduzido com arte de fundo estática
-- História, galeria de artes com download e galeria de vídeos
-- Interface responsiva e acessível com estética neon original
-- Rotas compatíveis com GitHub Pages usando `HashRouter`
-- Testes básicos e publicação automatizada no GitHub Actions
-
-## Rodar localmente
-
-Requer Node.js 22+.
+Node.js 22+:
 
 ```bash
 npm ci
@@ -31,21 +21,45 @@ npm run build
 npm run preview
 ```
 
-## Publicar no GitHub Pages
+O modo desenvolvimento usa vídeos originais de `public/movie/`. Para simular exatamente a publicação, instale FFmpeg e FFprobe e execute:
 
-1. Mescle a branch de modernização em `main`.
-2. No repositório, em **Settings → Pages → Build and deployment**, selecione **GitHub Actions**.
-3. O workflow `.github/workflows/pages.yml` compila o Vite e publica o `dist/` ao atualizar `main`.
-4. Abra https://helioconde.github.io/dj-sona/ — páginas internas funcionam via `/#/historia`, `/#/wallpapers`, `/#/videos`.
+```bash
+npm run build:pages
+npm run media:check
+npm run preview
+```
 
-**Importante:** o deploy antigo para Locaweb permanece disponível por acionamento manual, não é executado a cada push.
+## Funcionalidades
 
-## Limitações atuais
+- Troca de forma por mouse, teclado ou toque.
+- Som desativado por padrão; controle de volume.
+- Respeito a movimento reduzido e fallback visual.
+- Páginas História, Artes e Vídeos.
+- URLs estáticas funcionando no GitHub Pages.
+- Capturas com Playwright em desktop, tablet e mobile durante os PRs.
 
-O build agora copia apenas as artes e os três vídeos efetivamente utilizados e, quando o FFmpeg está instalado no ambiente, gera cópias H.264 otimizadas para a pasta `dist` sem alterar o acervo original em `public/`. Sem FFmpeg, funciona com os arquivos originais (maiores). A reprodução de vídeo e áudio pode variar conforme o navegador.
+## Publicação
+
+O workflow `.github/workflows/pages.yml` publica automaticamente após um push ou merge na `main` pelo **GitHub Actions** (Settings → Pages → Build and deployment → GitHub Actions).
+
+A compilação do Pages transcodifica somente os três MP4 realmente utilizados e remove os demais do artefato publicado. O relatório de tamanho fica em `dist/media-report.json` e é arquivado no CI. A mídia original permanece em `public/movie/`.
+
+A publicação antiga via FTP é manual e separada.
+
+## Estrutura
+
+- `src/` — componentes, páginas, dados e estilos.
+- `public/` — mídias originais (não alterar sem revisão dos direitos).
+- `scripts/optimize-media.mjs` — otimização FFmpeg e validação de duração/tamanho.
+- `scripts/check-media.mjs` — verifica o resultado do build.
+- `scripts/visual-qa.mjs` — capturas de tela e checagens com Playwright.
+- `docs/DESIGN_SYSTEM.md` — padrões visuais.
+- `docs/ASSETS_AND_RIGHTS.md` — inventário, créditos e limitações.
+
+**Observação:** remover os antigos builds versionados diminui a árvore de arquivos atual, mas não apaga binários do histórico Git. Uma redução do histórico requer uma migração especial, não realizada nesta atualização.
 
 ## Direitos
 
-Este é um projeto de fã sem afiliação ou endosso da Riot Games. DJ Sona, League of Legends e as artes/mídias relacionadas pertencem aos seus respectivos titulares. Verifique as permissões antes de republicar ou distribuir arquivos.
+DJ Sona, League of Legends e materiais associados pertencem à Riot Games e aos respectivos titulares. Este projeto não é endossado pela Riot Games. Confira termos e direitos antes de republicar imagens e sons.
 
-Criado por [Hélio Conde](https://github.com/HelioConde).
+Desenvolvido por [Hélio Conde](https://github.com/HelioConde).

@@ -2,9 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  // GitHub Pages: https://helioconde.github.io/dj-sona/
   base: '/dj-sona/',
   plugins: [react()],
-  // Publicação enxuta: o pós-build copia somente os arquivos utilizados.
+  // O build copia somente as imagens, fontes e os 3 vídeos realmente utilizados.
   publicDir: false,
 })
