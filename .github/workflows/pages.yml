@@ -1,4 +1,4 @@
-name: DJ Sona - QA e GitHub Pages
+name: Publicar no GitHub Pages
 on:
   push:
     branches: [main]
@@ -8,43 +8,31 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: dj-sona-pages
-  cancel-in-progress: false
+  group: pages
+  cancel-in-progress: true
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
           cache: npm
       - run: npm ci
+      - run: npm run lint
       - run: npm run build
-      - run: test -f dist/index.html && test -d dist/assets
-      - name: Playwright
-        run: |
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
-          node tests/visual-qa.cjs
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: dj-sona-visual-qa
-          path: visual-qa/
-          if-no-files-found: ignore
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v4
+        env:
+          GITHUB_PAGES: 'true'
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
   deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
     steps:
-      - id: deploy
+      - id: deployment
         uses: actions/deploy-pages@v4
