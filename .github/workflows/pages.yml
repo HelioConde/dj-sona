@@ -26,9 +26,25 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install FFmpeg
-        timeout-minutes: 6
-        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Prepare FFmpeg / FFprobe without apt downloads
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            echo "Using tools already available on GitHub runner."
+          else
+            # The apt mirrors can stall for minutes. Download pinned static tools instead.
+            npm install --no-save --package-lock=false ffmpeg-static@5.3.0 @ffprobe-installer/ffprobe@2.1.2
+            mkdir -p "$RUNNER_TEMP/dj-sona-media-bin"
+            ln -s "$(node -p 'require("ffmpeg-static")')" "$RUNNER_TEMP/dj-sona-media-bin/ffmpeg"
+            ln -s "$(node -p 'require("@ffprobe-installer/ffprobe").path')" "$RUNNER_TEMP/dj-sona-media-bin/ffprobe"
+            echo "$RUNNER_TEMP/dj-sona-media-bin" >> "$GITHUB_PATH"
+            export PATH="$RUNNER_TEMP/dj-sona-media-bin:$PATH"
+          fi
+          ffmpeg -hide_banner -version | head -n 1
+          ffprobe -hide_banner -version | head -n 1
+          ffmpeg -hide_banner -encoders 2>/dev/null | grep -q 'libx264' || { echo '::error::FFmpeg must have libx264 support'; exit 1; }
       - name: Quality checks
         run: npm run lint && npm run test
       - name: Build optimized static site
