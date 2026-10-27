@@ -1,0 +1,52 @@
+name: DJ Sona - Dependency security audit
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/dependency-audit.yml'
+      - 'scripts/report-dependency-audit.mjs'
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/dependency-audit.yml'
+      - 'scripts/report-dependency-audit.mjs'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install lockfile dependencies without triggering duplicate audit
+        run: npm ci --no-audit --no-fund
+      - name: Collect reports for all and production-only dependencies
+        shell: bash
+        run: |
+          npm audit --json > audit-all.json || true
+          npm audit --omit=dev --json > audit-production.json || true
+      - name: Classify alerts by risk scope and generate summary
+        run: node scripts/report-dependency-audit.mjs
+      - name: Upload reviewable security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dj-sona-dependency-audit
+          path: |
+            audit-all.json
+            audit-production.json
+            audit-report.md
+          if-no-files-found: ignore
+          retention-days: 30
