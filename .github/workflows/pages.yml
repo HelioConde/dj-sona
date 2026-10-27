@@ -1,6 +1,8 @@
-name: DJ Sona - QA e GitHub Pages
+name: CI, auditoria visual e GitHub Pages
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
@@ -8,43 +10,59 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: dj-sona-pages
-  cancel-in-progress: false
+  group: "pages-dj-sona-${{ github.ref }}"
+  cancel-in-progress: true
 jobs:
-  build-and-test:
+  qa-and-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: test -f dist/index.html && test -d dist/assets
-      - name: Playwright
+      - name: Dependências
+        run: npm ci
+      - name: Verificar qualidade
+        run: npm run lint
+      - name: Compilar para o caminho Pages
+        env:
+          GITHUB_PAGES: 'true'
+        run: npm run build
+      - name: Otimizar somente as três mídias utilizadas
         run: |
-          npm install --no-save playwright
+          rm -rf dist/movie
+          mkdir -p dist/movie
+          for form in Kinetic Concussive Ethereal; do
+            ffmpeg -hide_banner -loglevel error -y -i "public/movie/DJ-Sona-${form}2.mp4" -vf "scale=1280:-2:force_original_aspect_ratio=decrease" -c:v libx264 -preset veryfast -crf 31 -pix_fmt yuv420p -an -movflags +faststart "dist/movie/DJ-Sona-${form}2.mp4"
+          done
+      - name: Instalar Playwright e Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
           npx playwright install --with-deps chromium
-          node tests/visual-qa.cjs
-      - uses: actions/upload-artifact@v4
+      - name: Executar auditoria visual em múltiplas resoluções
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/dj-sona-preview.log 2>&1 &
+          node tests/playwright-audit.mjs
+          npx playwright screenshot --browser chromium --viewport-size "390,844" --full-page "http://127.0.0.1:4173/dj-sona/" artifacts/screenshots/cli-mobile.png
+      - name: Capturas de auditoria
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: dj-sona-visual-qa
-          path: visual-qa/
+          name: dj-sona-playwright-capturas
+          path: artifacts/screenshots/
           if-no-files-found: ignore
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist
   deploy:
-    needs: build-and-test
+    if: github.event_name != 'pull_request'
+    needs: qa-and-build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deploy
+      - id: deployment
         uses: actions/deploy-pages@v4
