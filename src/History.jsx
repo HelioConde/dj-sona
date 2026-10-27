@@ -1,6 +1,6 @@
 export default function History() {
   return (
-    <main id="conteudo" className="page-shell">
+    <main id="conteudo" tabIndex={-1} className="page-shell">
       <header className="page-heading">
         <p className="eyebrow">SOBRE A EXPERIÊNCIA</p>
         <h1>Três formas, uma só DJ</h1>

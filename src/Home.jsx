@@ -32,7 +32,7 @@ export default function Home() {
   }
 
   return (
-    <main id="conteudo" className={'home theme-' + active}>
+    <main id="conteudo" tabIndex={-1} className={'home theme-' + active}>
       {motionEnabled && !videoError && (
         <video
           key={active}

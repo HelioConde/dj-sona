@@ -6,7 +6,7 @@ const arts = [
 
 export default function Wallpapers() {
   return (
-    <main id="conteudo" className="page-shell">
+    <main id="conteudo" tabIndex={-1} className="page-shell">
       <header className="page-heading">
         <p className="eyebrow">GALERIA VISUAL</p>
         <h1>Wallpapers & artes</h1>

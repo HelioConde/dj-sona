@@ -10,7 +10,7 @@ import './App.css'
 export default function App() {
   return (
     <HashRouter>
-      <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
+      <a className="skip-link" href="#conteudo" onClick={(event) => { event.preventDefault(); document.getElementById('conteudo')?.focus() }}>Pular para o conteúdo</a>
       <Nav />
       <Routes>
         <Route path="/" element={<Home />} />

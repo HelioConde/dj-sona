@@ -18,7 +18,7 @@ export default function Movies() {
   }
 
   return (
-    <main id="conteudo" className="page-shell">
+    <main id="conteudo" tabIndex={-1} className="page-shell">
       <header className="page-heading">
         <p className="eyebrow">BIBLIOTECA DE MÍDIA</p>
         <h1>O espetáculo em movimento</h1>
