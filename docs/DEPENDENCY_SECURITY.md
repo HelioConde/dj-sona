@@ -21,3 +21,11 @@ As informações são anexadas como artefatos do workflow. Vulnerabilidades iden
 5. Atualizar [issue #13](https://github.com/HelioConde/dj-sona/issues/13) quando os riscos forem triados.
 
 Não armazenar tokens ou credenciais nos assets públicos. Este workflow não cria banco de dados nem requer backend.
+
+## Modernização Vite/ESLint (27/10/2026)
+
+- Vite 4 foi substituído por Vite 7.3.7, que continua recebendo patches de segurança.
+- `@vitejs/plugin-react` migrou para 5.2; configurações de Vite e caminho `/dj-sona/` foram preservados.
+- ESLint 8 foi substituído por ESLint 9 e `eslint.config.js` (flat config) com regras equivalentes de JSX automático, React Hooks e React Refresh. A configuração `.eslintrc.cjs` foi removida.
+- As dependências têm lockfile regenerado pelo npm 10 no CI. O relatório de auditoria do GitHub Actions permite verificar o que ainda requer correção antes do merge.
+- Os testes devem verificar React 18, tipografia neon, três formas, pausas, som, navegação, screenshots e vídeo otimizado do Pages; jamais tratar `npm audit` isolado como prova de segurança completa.
