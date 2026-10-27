@@ -43,3 +43,7 @@ Preservar a essência: palco escuro, luzes neon, vídeos como cenário e três f
 - Setas horizontais sobre os botões de seleção movem o foco e selecionam a forma de maneira circular.
 - Layout de áudio usa duas colunas em telas estreitas, mantendo alvo de toque e foco visível.
 - Playwright cobre a seleção pelas setas e as resoluções desktop/short/mobile existentes.
+
+## Regressão de interação — pausa e áudio
+
+O controle de áudio não pode reativar o vídeo quando o usuário pausou o palco. A lógica de `toggleSound` verifica `videoPaused`; o Playwright exerce a sequência **Pausar movimento → Ativar som → manter o elemento de vídeo pausado → Retomar movimento** também em mobile de 390px, com uma captura adicional.

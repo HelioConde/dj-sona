@@ -58,7 +58,7 @@ export default function Home() {
     if (video) {
       video.muted = !next
       video.volume = volume
-      if (next && !reduceMotion) video.play().catch(() => {})
+      if (next && !reduceMotion && !videoPaused) video.play().catch(() => {})
     }
     setSoundOn(next)
   }

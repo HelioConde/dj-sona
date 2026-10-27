@@ -86,6 +86,29 @@ try {
     results.push({ ...view, overflow: metrics.documentWidth - metrics.viewportWidth, passed: true })
     await page.close()
   }
+
+  // Regressão de acessibilidade: ligar áudio NÃO deve reativar vídeo pausado.
+  const mediaPage = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    reducedMotion: 'no-preference',
+  })
+  mediaPage.on('pageerror', (error) => errors.push(`mobile-playback: ${error.message}`))
+  await mediaPage.goto(base, { waitUntil: 'domcontentloaded', timeout: 30000 })
+  await mediaPage.getByRole('heading', { name: /FEEL THE/i }).waitFor()
+  const pauseButton = mediaPage.getByRole('button', { name: 'Pausar movimento do palco' })
+  await pauseButton.click()
+  assert.equal(await mediaPage.getByRole('button', { name: 'Retomar movimento do palco' }).getAttribute('aria-pressed'), 'true')
+  await mediaPage.getByRole('button', { name: /Ativar som/i }).click()
+  assert.equal(await mediaPage.getByRole('button', { name: /Silenciar/i }).getAttribute('aria-pressed'), 'true')
+  await mediaPage.waitForTimeout(250)
+  assert.equal(await mediaPage.locator('.scene-background video').evaluate((video) => video.paused), true,
+    'Ativar som nao deve retomar o video de fundo pausado')
+  await mediaPage.screenshot({ path: 'qa-screenshots/mobile-video-paused-and-sound-on.png', fullPage: true })
+  await mediaPage.getByRole('button', { name: 'Retomar movimento do palco' }).click()
+  assert.equal(await mediaPage.getByRole('button', { name: 'Pausar movimento do palco' }).getAttribute('aria-pressed'), 'false')
+  await checkNoHorizontalOverflow(mediaPage, 'mobile-playback')
+  results.push({ name: 'mobile-playback', width: 390, height: 844, passed: true })
+  await mediaPage.close()
 } finally {
   await browser.close()
 }
